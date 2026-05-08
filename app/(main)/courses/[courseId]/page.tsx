@@ -1,0 +1,191 @@
+"use client";
+
+import { use, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
+import Image from "next/image";
+import { 
+  ChevronLeft, 
+  Star, 
+  Users, 
+  Clock, 
+  Globe, 
+  ShieldCheck,
+  PlayCircle,
+  CheckCircle2,
+  Lock
+} from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Sidebar } from "@/components/sidebar";
+import { Badge } from "@/components/ui/badge";
+import { PaymentButton } from "@/components/payment-button";
+import { LoadingScreen } from "@/components/loading-screen";
+
+export default function CourseDetailsPage({ params }: { params: Promise<{ courseId: string }> }) {
+  const { courseId } = use(params);
+  const router = useRouter();
+  const supabase = createClient();
+  const [course, setCourse] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadCourse() {
+      const { data } = await supabase
+        .from('courses')
+        .select(`
+          *,
+          profiles:instructor_id(full_name, avatar_url),
+          chapters(*)
+        `)
+        .eq('id', courseId)
+        .single();
+
+      if (!data) {
+        router.push("/courses");
+        return;
+      }
+
+      setCourse(data);
+      setTimeout(() => setLoading(false), 1200);
+    }
+    loadCourse();
+  }, [courseId, router, supabase]);
+
+  if (loading) return <LoadingScreen />;
+
+  return (
+    <div className="flex h-screen bg-background overflow-hidden transition-colors duration-500 theme-transition">
+      <Sidebar role="learner" />
+      
+      <main className="flex-1 flex flex-col overflow-hidden">
+        {/* Header */}
+        <header className="h-24 bg-card border-b border-border px-10 flex items-center justify-between z-10 transition-colors duration-500">
+          <Button variant="ghost" size="icon" onClick={() => router.back()} className="rounded-xl hover:bg-muted transition-colors">
+             <ChevronLeft className="w-6 h-6 text-muted-foreground" />
+          </Button>
+          <div className="flex items-center gap-4">
+             <Button variant="ghost" className="font-bold text-muted-foreground hover:text-foreground transition-colors">Share Course</Button>
+             <Badge className="bg-primary/10 text-primary border-0 font-bold px-4 py-1">Academic Verification Active</Badge>
+          </div>
+        </header>
+
+        {/* Content */}
+        <div className="flex-1 overflow-y-auto p-10 custom-scrollbar">
+           <div className="max-w-6xl mx-auto py-10">
+              <div className="grid lg:grid-cols-3 gap-16">
+                 
+                 {/* Main Content */}
+                 <div className="lg:col-span-2 space-y-12">
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                    >
+                       <div className="flex items-center gap-3 mb-6">
+                          <Badge className="bg-secondary text-white border-0 font-bold px-4">{course.category}</Badge>
+                          <div className="flex items-center text-amber-500 gap-1">
+                             <Star className="w-4 h-4 fill-current" />
+                             <span className="text-sm font-bold text-foreground">4.9 (2.4k reviews)</span>
+                          </div>
+                       </div>
+                       <h1 className="text-5xl font-bold text-foreground font-heading mb-6 leading-tight">{course.title}</h1>
+                       <div className="flex items-center gap-4 mb-10">
+                          <div className="w-12 h-12 bg-muted rounded-2xl flex items-center justify-center transition-colors overflow-hidden">
+                             {course.profiles?.avatar_url ? (
+                               <Image src={course.profiles.avatar_url} alt={course.profiles.full_name} width={48} height={48} className="object-cover" />
+                             ) : (
+                               <Users className="w-6 h-6 text-primary" />
+                             )}
+                          </div>
+                          <div>
+                             <div className="text-[10px] font-black uppercase tracking-widest text-muted-foreground transition-colors">Instructor</div>
+                             <div className="text-sm font-bold text-foreground">{course.profiles?.full_name}</div>
+                          </div>
+                       </div>
+                    </motion.div>
+
+                    <motion.div 
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="aspect-video bg-muted rounded-[3rem] overflow-hidden relative shadow-2xl shadow-primary/5 border border-border transition-colors"
+                    >
+                       {course.thumbnail_url ? (
+                         <Image 
+                           src={course.thumbnail_url} 
+                           alt={course.title}
+                           fill
+                           className="object-cover"
+                           priority
+                         />
+                       ) : (
+                         <div className="w-full h-full flex items-center justify-center">
+                            <PlayCircle className="w-20 h-20 text-muted-foreground opacity-30" />
+                         </div>
+                       )}
+                    </motion.div>
+
+                    <div className="space-y-6">
+                       <h2 className="text-3xl font-bold text-foreground font-heading">Course Description</h2>
+                       <p className="text-muted-foreground text-lg leading-relaxed font-medium transition-colors">
+                          {course.description || "No description provided for this professional academic program."}
+                       </p>
+                    </div>
+
+                    <div className="space-y-8">
+                       <h2 className="text-3xl font-bold text-foreground font-heading">Curriculum Content</h2>
+                       <div className="space-y-4 pb-20">
+                          {course.chapters?.map((chapter: any, index: number) => (
+                            <div key={chapter.id} className="flex items-center justify-between p-6 bg-card rounded-3xl border border-border shadow-sm transition-colors hover:border-primary/20 transition-all cursor-default">
+                               <div className="flex items-center gap-6">
+                                  <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center text-primary font-black text-xs transition-colors">
+                                     {index + 1}
+                                  </div>
+                                  <div>
+                                     <div className="text-sm font-bold text-foreground">{chapter.title}</div>
+                                     <div className="text-[10px] font-black uppercase tracking-widest text-muted-foreground transition-colors">{chapter.content_type || 'Video'} lecture</div>
+                                  </div>
+                                </div>
+                               <Lock className="w-4 h-4 text-muted-foreground opacity-30" />
+                            </div>
+                          ))}
+                       </div>
+                    </div>
+                 </div>
+
+                 {/* Sidebar / Checkout */}
+                 <div className="lg:col-span-1">
+                    <div className="sticky top-10 bg-card p-10 rounded-[3rem] border border-border shadow-2xl shadow-primary/5 space-y-10 transition-colors">
+                       <div>
+                          <div className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground mb-2 transition-colors">Enrollment Fee</div>
+                          <div className="text-5xl font-bold text-secondary font-heading">₦{course.price.toLocaleString()}</div>
+                       </div>
+
+                       <div className="space-y-4">
+                          <PaymentButton courseId={course.id} amount={course.price} />
+                          <p className="text-[10px] text-center text-muted-foreground font-medium transition-colors">Secured by Paystack. Instant access after payment.</p>
+                       </div>
+
+                       <div className="pt-10 border-t border-border space-y-6 transition-colors">
+                          <div className="flex items-center gap-4">
+                             <CheckCircle2 className="w-5 h-5 text-green-500" />
+                             <span className="text-sm font-bold text-foreground">Lifetime Access</span>
+                          </div>
+                          <div className="flex items-center gap-4">
+                             <CheckCircle2 className="w-5 h-5 text-green-500" />
+                             <span className="text-sm font-bold text-foreground">Academic Certificate</span>
+                          </div>
+                          <div className="flex items-center gap-4">
+                             <CheckCircle2 className="w-5 h-5 text-green-500" />
+                             <span className="text-sm font-bold text-foreground">Downloadable Resources</span>
+                          </div>
+                       </div>
+                    </div>
+                 </div>
+
+              </div>
+           </div>
+        </div>
+      </main>
+    </div>
+  );
+}

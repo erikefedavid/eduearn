@@ -1,0 +1,181 @@
+@import url('https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600;6..72,700;6..72,800&family=Work+Sans:wght@300;400;500;600;700;800;900&display=swap');
+@import "tailwindcss";
+
+:root {
+  --color-background: #fdfdfc; /* Pure, clear background */
+  --color-foreground: #0e1210; /* Solid dark text */
+  --color-card: #ffffff;
+  --color-card-foreground: #0e1210;
+  --color-popover: #ffffff;
+  --color-popover-foreground: #0e1210;
+  --color-muted: #f1f4f2;
+  --color-muted-foreground: #45504a; /* Clearer muted text */
+  --color-accent: #e8f0eb;
+  --color-accent-foreground: #006041;
+  --color-border: #d7deda;
+}
+
+.dark {
+  --color-background: #050807; /* Deep, solid dark background */
+  --color-foreground: #eef2f0; /* Clear, bright text */
+  --color-card: #101513; /* Defined card depth */
+  --color-card-foreground: #eef2f0;
+  --color-popover: #101513;
+  --color-popover-foreground: #eef2f0;
+  --color-muted: #1c2421;
+  --color-muted-foreground: #a0ada6; /* High contrast muted text */
+  --color-accent: #003a28;
+  --color-accent-foreground: #ffffff;
+  --color-border: #2d3833;
+}
+
+@theme {
+  /* Core Colors - EdUEarn Design System (Academic Excellence) */
+  --color-primary: #006041;
+  --color-primary-foreground: #ffffff;
+  
+  --color-secondary: #835500;
+  --color-secondary-foreground: #ffffff;
+  
+  --color-background: var(--color-background);
+  --color-foreground: var(--color-foreground);
+  
+  --color-card: var(--color-card);
+  --color-card-foreground: var(--color-card-foreground);
+  
+  --color-popover: var(--color-popover);
+  --color-popover-foreground: var(--color-popover-foreground);
+  
+  --color-muted: var(--color-muted);
+  --color-muted-foreground: var(--color-muted-foreground);
+  
+  --color-accent: var(--color-accent);
+  --color-accent-foreground: var(--color-accent-foreground);
+  
+  --color-destructive: #ba1a1a;
+  --color-destructive-foreground: #ffffff;
+  
+  --color-border: var(--color-border);
+  --color-input: var(--color-border);
+  --color-ring: #006041;
+  
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
+  --radius-3xl: 2.5rem;
+  
+  --font-heading: "Newsreader", serif;
+  --font-body: "Work Sans", sans-serif;
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-body);
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    letter-spacing: -0.025em;
+  }
+}
+
+/* Custom Utilities for Premium Academic Look */
+.font-heading {
+  font-family: var(--font-heading);
+}
+
+.font-body {
+  font-family: var(--font-body);
+}
+
+.btn-gradient {
+  background: linear-gradient(135deg, var(--color-primary) 0%, #0f7b55 100%);
+  transition: all 0.3s ease;
+}
+
+.btn-gradient:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 96, 65, 0.2);
+  transform: translateY(-1px) scale(1.02);
+}
+
+.glass {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.card-hover {
+  transition: all 0.3s ease;
+}
+
+.card-hover:hover {
+  box-shadow: 0 25px 50px -12px rgba(0, 96, 65, 0.05);
+  transform: translateY(-4px);
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Global Scrollbar Customization */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-background);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 20px;
+  border: 3px solid var(--color-background);
+  transition: background 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-primary);
+}
+
+/* Custom Scrollbar for containers */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--color-primary);
+}
+
+.invisible-initially {
+  opacity: 0;
+}
+
+/* Theme transition utility - apply specifically to prevent global jank */
+.theme-transition {
+  transition: background-color 0.5s cubic-bezier(0.4, 0, 0.2, 1), 
+              color 0.5s cubic-bezier(0.4, 0, 0.2, 1), 
+              border-color 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-body);
+}
