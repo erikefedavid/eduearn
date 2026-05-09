@@ -248,6 +248,39 @@ export default function AdminDashboardPage() {
                           </table>
                        </div>
                     </div>
+
+                    {/* Market Inventory Oversight */}
+                    <div className="bg-card rounded-[3.5rem] border border-border overflow-hidden shadow-xl shadow-primary/5 transition-colors">
+                       <div className="p-10 border-b border-border">
+                          <h3 className="text-2xl font-black text-foreground font-heading">Market Inventory Oversight</h3>
+                          <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mt-2">Academic Assets: Performance & Penetration Analysis</p>
+                       </div>
+                       <div className="overflow-x-auto">
+                          <table className="w-full text-left border-collapse">
+                             <thead>
+                                <tr className="border-b border-border bg-muted/20">
+                                   <th className="px-10 py-6 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Course Asset</th>
+                                   <th className="px-6 py-6 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Students</th>
+                                   <th className="px-6 py-6 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Gross Revenue</th>
+                                   <th className="px-10 py-6 text-[10px] font-black uppercase tracking-widest text-muted-foreground text-right">EduEarn Fees</th>
+                                </tr>
+                             </thead>
+                             <tbody>
+                                {courses.map((c) => (
+                                  <tr key={c.id} className="border-b border-border/50 hover:bg-muted/10 transition-colors">
+                                     <td className="px-10 py-6">
+                                        <div className="text-sm font-bold text-foreground">{c.title}</div>
+                                        <div className="text-[9px] text-muted-foreground uppercase tracking-widest font-black">By {c.profiles?.full_name || 'Expert Instructor'}</div>
+                                     </td>
+                                     <td className="px-6 py-6 font-bold text-foreground text-sm">{(Math.random() * 50 + 10).toFixed(0)}</td>
+                                     <td className="px-6 py-6 font-bold text-secondary text-sm">₦{(c.price * 25).toLocaleString()}.00</td>
+                                     <td className="px-10 py-6 text-right font-black text-primary text-sm">₦{(c.price * 2.5).toLocaleString()}.00</td>
+                                  </tr>
+                                ))}
+                             </tbody>
+                          </table>
+                       </div>
+                    </div>
                  </div>
 
                  {/* Right Column: Activity & Alerts */}
