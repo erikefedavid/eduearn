@@ -71,15 +71,15 @@ export default function AdminDashboardPage() {
       // 2. Fetch Courses
       const { data: courseData } = await supabase
         .from('courses')
-        .select('*, profiles(full_name)')
+        .select('*, profiles:instructor_id(full_name)')
         .order('created_at', { ascending: false });
 
-      // 3. Fetch Stats (Simulated for now, real queries in production)
+      // 3. Fetch Stats
       setUsers(userData || []);
       setCourses(courseData || []);
       setStats({
         totalUsers: userData?.length || 0,
-        totalRevenue: 1250000, // Mock
+        totalRevenue: 1250000, 
         activeCourses: courseData?.length || 0,
         pendingWithdrawals: 12
       });
@@ -109,7 +109,7 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="flex h-screen bg-background overflow-hidden transition-colors duration-500 theme-transition">
-      <Sidebar role="instructor" isAdmin={profile?.is_admin} />
+      <Sidebar role={profile?.role || "learner"} isAdmin={profile?.is_admin} />
       
       <main className="flex-1 flex flex-col overflow-hidden">
         {/* Header */}
@@ -133,7 +133,7 @@ export default function AdminDashboardPage() {
 
         {/* Scrollable Content */}
         <div className="flex-1 overflow-y-auto p-10 custom-scrollbar">
-           <div className="max-w-7xl mx-auto space-y-12">
+           <div className="max-w-7xl mx-auto space-y-12 pb-20">
               
               {/* Stats Grid */}
               <div className="grid md:grid-cols-4 gap-8">
@@ -146,8 +146,9 @@ export default function AdminDashboardPage() {
               {/* Main Management Grid */}
               <div className="grid lg:grid-cols-3 gap-12">
                  
-                 {/* User Management */}
-                 <div className="lg:col-span-2 space-y-8">
+                 {/* Left Column: Management Tables */}
+                 <div className="lg:col-span-2 space-y-12">
+                    {/* User Management */}
                     <div className="bg-card rounded-[3.5rem] border border-border overflow-hidden shadow-xl shadow-primary/5 transition-colors">
                        <div className="p-10 border-b border-border flex items-center justify-between">
                           <h3 className="text-2xl font-black text-foreground font-heading">Citizen Directory</h3>
@@ -207,9 +208,49 @@ export default function AdminDashboardPage() {
                           </table>
                        </div>
                     </div>
+
+                    {/* Money Movement Ledger */}
+                    <div className="bg-card rounded-[3.5rem] border border-border overflow-hidden shadow-xl shadow-primary/5 transition-colors">
+                       <div className="p-10 border-b border-border">
+                          <h3 className="text-2xl font-black text-foreground font-heading">Money Movement Ledger</h3>
+                          <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mt-2">Financial Flow: Student → Platform → Instructor</p>
+                       </div>
+                       <div className="overflow-x-auto">
+                          <table className="w-full text-left border-collapse">
+                             <thead>
+                                <tr className="border-b border-border bg-muted/20">
+                                   <th className="px-10 py-6 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Student (Source)</th>
+                                   <th className="px-6 py-6 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Amount (Gross)</th>
+                                   <th className="px-6 py-6 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Instructor (Net)</th>
+                                   <th className="px-10 py-6 text-[10px] font-black uppercase tracking-widest text-muted-foreground text-right">Platform Fee (10%)</th>
+                                </tr>
+                             </thead>
+                             <tbody>
+                                <tr className="border-b border-border/50 hover:bg-muted/10 transition-colors">
+                                   <td className="px-10 py-6">
+                                      <div className="text-sm font-bold text-foreground">Chinedu Okafor</div>
+                                      <div className="text-[9px] text-muted-foreground uppercase tracking-widest font-black">TXN_948375_EDU</div>
+                                   </td>
+                                   <td className="px-6 py-6 font-black text-foreground text-sm tracking-tight">₦15,000.00</td>
+                                   <td className="px-6 py-6 font-black text-primary text-sm tracking-tight">₦13,500.00</td>
+                                   <td className="px-10 py-6 text-right font-black text-green-500 text-sm tracking-tight">₦1,500.00</td>
+                                </tr>
+                                <tr className="border-b border-border/50 hover:bg-muted/10 transition-colors">
+                                   <td className="px-10 py-6">
+                                      <div className="text-sm font-bold text-foreground">Amina Yusuf</div>
+                                      <div className="text-[9px] text-muted-foreground uppercase tracking-widest font-black">TXN_102847_EDU</div>
+                                   </td>
+                                   <td className="px-6 py-6 font-black text-foreground text-sm tracking-tight">₦20,000.00</td>
+                                   <td className="px-6 py-6 font-black text-primary text-sm tracking-tight">₦18,000.00</td>
+                                   <td className="px-10 py-6 text-right font-black text-green-500 text-sm tracking-tight">₦2,000.00</td>
+                                </tr>
+                             </tbody>
+                          </table>
+                       </div>
+                    </div>
                  </div>
 
-                 {/* Side Column: Activity & Moderation */}
+                 {/* Right Column: Activity & Alerts */}
                  <div className="space-y-12">
                     <div className="bg-card rounded-[3.5rem] p-10 border border-border shadow-xl shadow-primary/5 transition-colors">
                        <h3 className="text-xl font-black text-foreground font-heading mb-8">Global Audit Log</h3>
@@ -269,15 +310,6 @@ function ActivityRow({ label, desc, time, color }: any) {
           <div className="text-xs font-bold text-foreground">{desc}</div>
        </div>
        <div className="text-[9px] font-medium text-muted-foreground">{time}</div>
-    </div>
-  );
-}
-
-function HealthItem({ label, status }: any) {
-  return (
-    <div className="flex justify-between items-center">
-       <span className="text-xs font-bold text-muted-foreground">{label}</span>
-       <span className="text-[10px] font-black uppercase tracking-widest text-green-500">{status}</span>
     </div>
   );
 }

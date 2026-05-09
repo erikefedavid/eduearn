@@ -30,12 +30,14 @@ export const Sidebar = ({ role, isAdmin }: SidebarProps) => {
       href: "/dashboard",
       active: pathname === "/dashboard",
     },
-    {
-      label: "Browse Courses",
-      icon: Search,
-      href: "/courses",
-      active: pathname === "/courses" || pathname.startsWith("/courses/"),
-    },
+    ...(!isAdmin ? [
+      {
+        label: "Browse Courses",
+        icon: Search,
+        href: "/courses",
+        active: pathname === "/courses" || pathname.startsWith("/courses/"),
+      }
+    ] : []),
     {
       label: isAdmin ? "System Overview" : role === "instructor" ? "My Courses" : "My Learning",
       icon: GraduationCap,
@@ -54,14 +56,6 @@ export const Sidebar = ({ role, isAdmin }: SidebarProps) => {
         icon: Wallet,
         href: "/instructor/earnings",
         active: pathname === "/instructor/earnings",
-      }
-    ] : []),
-    ...(isAdmin && pathname !== "/admin" ? [
-      {
-        label: "Admin Center",
-        icon: ShieldAlert,
-        href: "/admin",
-        active: pathname === "/admin",
       }
     ] : [])
   ];
@@ -95,16 +89,18 @@ export const Sidebar = ({ role, isAdmin }: SidebarProps) => {
         ))}
       </div>
 
-      <div className="p-8 mt-auto border-t border-border space-y-2">
-        <Link href="/settings" className="w-full flex items-center gap-4 px-6 py-3 text-muted-foreground hover:text-foreground transition-colors group">
-           <Settings className="w-4 h-4 group-hover:text-primary transition-colors" />
-           <span className="text-[10px] font-black uppercase tracking-widest">Settings</span>
-        </Link>
-        <Link href="/help" className="w-full flex items-center gap-4 px-6 py-3 text-muted-foreground hover:text-foreground transition-colors group">
-           <HelpCircle className="w-4 h-4 group-hover:text-primary transition-colors" />
-           <span className="text-[10px] font-black uppercase tracking-widest">Help Center</span>
-        </Link>
-      </div>
+      {!isAdmin && (
+        <div className="p-8 mt-auto border-t border-border space-y-2">
+          <Link href="/settings" className="w-full flex items-center gap-4 px-6 py-3 text-muted-foreground hover:text-foreground transition-colors group">
+             <Settings className="w-4 h-4 group-hover:text-primary transition-colors" />
+             <span className="text-[10px] font-black uppercase tracking-widest">Settings</span>
+          </Link>
+          <Link href="/help" className="w-full flex items-center gap-4 px-6 py-3 text-muted-foreground hover:text-foreground transition-colors group">
+             <HelpCircle className="w-4 h-4 group-hover:text-primary transition-colors" />
+             <span className="text-[10px] font-black uppercase tracking-widest">Help Center</span>
+          </Link>
+        </div>
+      )}
     </div>
   );
 };
