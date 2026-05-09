@@ -97,7 +97,7 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="flex h-screen bg-background overflow-hidden transition-colors duration-500 theme-transition">
-      <Sidebar role="instructor" /> {/* Admin uses instructor sidebar for now */}
+      <Sidebar role="instructor" isAdmin={profile?.is_admin} />
       
       <main className="flex-1 flex flex-col overflow-hidden">
         {/* Header */}
