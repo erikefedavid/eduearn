@@ -23,29 +23,55 @@ export default function EarningsPage() {
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<any>(null);
   const [earningsData, setEarningsData] = useState<any>({
-    total: 85200.50,
-    available: 12450.50,
-    pending: 5000.00,
-    history: [
-      { id: 1, type: "Course Sale", course: "Advanced Nigerian Tax Law", date: "2024-11-28", amount: 4500.00, status: "completed" },
-      { id: 2, type: "Course Sale", course: "Data Analytics for Business", date: "2024-11-25", amount: 6000.00, status: "completed" },
-      { id: 3, type: "Payout", course: null, date: "2024-11-15", amount: -15000.00, status: "processed" },
-      { id: 4, type: "Course Sale", course: "Renewable Energy Systems", date: "2024-11-10", amount: 3500.00, status: "completed" },
-    ]
+    total: 0,
+    available: 0,
+    pending: 0,
+    history: []
   });
 
   useEffect(() => {
     async function loadData() {
       const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const { data: profileData } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', user.id)
-          .single();
-        setProfile(profileData);
-      }
-      setTimeout(() => setLoading(false), 800);
+      if (!user) return;
+
+      // 1. Fetch Profile for Balance
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+      
+      setProfile(profileData);
+
+      // 2. Fetch Real Transaction History
+      const { data: transactions } = await supabase
+        .from('transactions')
+        .select('*')
+        .eq('instructor_id', user.id)
+        .order('created_at', { ascending: false });
+
+      const history = (transactions || []).map(tx => ({
+        id: tx.id,
+        type: tx.amount < 0 ? "Payout" : "Course Sale",
+        course: tx.course_id ? "Enrolled Content" : null,
+        date: new Date(tx.created_at).toLocaleDateString(),
+        amount: tx.amount,
+        status: "completed"
+      }));
+
+      // 3. Calculate Stats
+      const totalRevenue = (transactions || [])
+        .filter(tx => tx.amount > 0)
+        .reduce((sum, tx) => sum + Number(tx.amount), 0);
+
+      setEarningsData({
+        total: totalRevenue,
+        available: profileData?.balance || 0,
+        pending: 0,
+        history: history
+      });
+      
+      setLoading(false);
     }
     loadData();
   }, [supabase]);

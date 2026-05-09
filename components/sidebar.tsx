@@ -62,15 +62,19 @@ export const Sidebar = ({ role, isAdmin }: SidebarProps) => {
 
   return (
     <>
-      {/* Mobile Navigation Bar - Fixed at bottom */}
-      <div className="md:hidden fixed bottom-4 left-4 right-4 z-[100] bg-card/80 backdrop-blur-2xl border border-border p-2 rounded-[2rem] shadow-2xl flex items-center justify-around">
+      {/* Mobile Navigation Bar - Bulletproof Centering */}
+      <div className="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-sm z-[100] bg-card/90 backdrop-blur-3xl border border-border p-2 rounded-[2.5rem] shadow-2xl flex items-center justify-between px-4 transition-all duration-500">
         {routes.map((route) => (
           <Link
             key={route.href}
             href={route.href}
-            className={`p-4 rounded-2xl transition-all ${route.active ? "bg-primary text-white shadow-xl shadow-primary/20 scale-110" : "text-muted-foreground hover:bg-muted/50"}`}
+            className={`flex flex-col items-center justify-center p-3.5 rounded-2xl transition-all ${
+              route.active 
+                ? "bg-primary text-white shadow-lg shadow-primary/20 scale-110" 
+                : "text-muted-foreground hover:bg-muted/50"
+            }`}
           >
-            <route.icon className="w-6 h-6" />
+            <route.icon className="w-5 h-5 md:w-6 md:h-6" />
           </Link>
         ))}
       </div>

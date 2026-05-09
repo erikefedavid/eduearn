@@ -95,7 +95,7 @@ export default function SettingsPage() {
           </header>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-6 md:p-10 custom-scrollbar bg-background transition-colors duration-500">
+        <div className="flex-1 overflow-y-auto p-6 md:p-10 pb-40 md:pb-20 custom-scrollbar bg-background transition-colors duration-500">
            <div className="max-w-5xl mx-auto">
                <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 md:gap-12">
                   

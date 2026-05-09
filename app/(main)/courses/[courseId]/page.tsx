@@ -59,7 +59,7 @@ export default function CourseDetailsPage({ params }: { params: Promise<{ course
         return;
       }
 
-      if (profile.is_admin) {
+      if (profile?.is_admin) {
         toast.error("Admins must use the Command Center for course oversight.");
         router.push("/admin");
         return;
