@@ -55,6 +55,11 @@ export default function DashboardPage() {
         return;
       }
 
+      if (profile.is_admin) {
+        router.push("/admin");
+        return;
+      }
+
       setProfile(profile);
       setTimeout(() => setLoading(false), 1500);
       

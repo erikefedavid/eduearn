@@ -31,8 +31,21 @@ export default function LoginPage() {
 
       if (error) throw error;
 
+      // Check if user is admin for direct redirect
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('is_admin')
+        .eq('id', (await supabase.auth.getUser()).data.user?.id)
+        .single();
+
       toast.success("Logged in successfully!");
-      router.push("/dashboard");
+      
+      if (profile?.is_admin) {
+        router.push("/admin");
+      } else {
+        router.push("/dashboard");
+      }
+      
       router.refresh();
     } catch (error: any) {
       toast.error(error.message || "Invalid credentials");
