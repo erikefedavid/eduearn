@@ -27,11 +27,23 @@ export default function CourseDetailsPage({ params }: { params: Promise<{ course
   const router = useRouter();
   const supabase = createClient();
   const [course, setCourse] = useState<any>(null);
+  const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function loadCourse() {
-      const { data } = await supabase
+    async function loadData() {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single();
+        setProfile(profile);
+      }
+
+      const { data: course } = await supabase
         .from('courses')
         .select(`
           *,
@@ -41,22 +53,22 @@ export default function CourseDetailsPage({ params }: { params: Promise<{ course
         .eq('id', courseId)
         .single();
 
-      if (!data) {
+      if (!course) {
         router.push("/courses");
         return;
       }
 
-      setCourse(data);
+      setCourse(course);
       setTimeout(() => setLoading(false), 1200);
     }
-    loadCourse();
+    loadData();
   }, [courseId, router, supabase]);
 
   if (loading) return <LoadingScreen />;
 
   return (
     <div className="flex h-screen bg-background overflow-hidden transition-colors duration-500 theme-transition">
-      <Sidebar role="learner" />
+      <Sidebar role={profile?.role || "learner"} isAdmin={profile?.is_admin} />
       
       <main className="flex-1 flex flex-col overflow-hidden">
         {/* Header */}
@@ -161,9 +173,21 @@ export default function CourseDetailsPage({ params }: { params: Promise<{ course
                        </div>
 
                        <div className="space-y-4">
-                          <PaymentButton courseId={course.id} amount={course.price} />
-                          <p className="text-[10px] text-center text-muted-foreground font-medium transition-colors">Secured by Paystack. Instant access after payment.</p>
-                       </div>
+                           {profile?.is_admin || profile?.role === "instructor" ? (
+                             <div className="p-8 bg-muted/50 rounded-[2rem] border-2 border-dashed border-border text-center">
+                                <ShieldCheck className="w-10 h-10 text-muted-foreground mx-auto mb-4 opacity-20" />
+                                <div className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground mb-2">Restricted Access</div>
+                                <p className="text-[11px] font-medium text-muted-foreground leading-relaxed">
+                                   As an {profile?.is_admin ? "Administrator" : "Instructor"}, you cannot enroll in courses. Learning is reserved for student citizens.
+                                </p>
+                             </div>
+                           ) : (
+                             <>
+                               <PaymentButton courseId={course.id} amount={course.price} />
+                               <p className="text-[10px] text-center text-muted-foreground font-medium transition-colors">Secured by Paystack. Instant access after payment.</p>
+                             </>
+                           )}
+                        </div>
 
                        <div className="pt-10 border-t border-border space-y-6 transition-colors">
                           <div className="flex items-center gap-4">
