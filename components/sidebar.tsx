@@ -60,22 +60,23 @@ export const Sidebar = ({ role, isAdmin }: SidebarProps) => {
     ] : [])
   ];
 
+  return (
     <>
-      {/* Mobile Nav Trigger */}
-      <div className="md:hidden fixed bottom-6 left-6 right-6 z-50 bg-card/80 backdrop-blur-xl border border-border p-3 rounded-[2.5rem] shadow-2xl flex items-center justify-around">
+      {/* Mobile Navigation Bar - Fixed at bottom */}
+      <div className="md:hidden fixed bottom-4 left-4 right-4 z-[100] bg-card/80 backdrop-blur-2xl border border-border p-2 rounded-[2rem] shadow-2xl flex items-center justify-around">
         {routes.map((route) => (
           <Link
             key={route.href}
             href={route.href}
-            className={`p-4 rounded-2xl transition-all ${route.active ? "bg-primary text-white shadow-lg" : "text-muted-foreground"}`}
+            className={`p-4 rounded-2xl transition-all ${route.active ? "bg-primary text-white shadow-xl shadow-primary/20 scale-110" : "text-muted-foreground hover:bg-muted/50"}`}
           >
             <route.icon className="w-6 h-6" />
           </Link>
         ))}
       </div>
 
-      {/* Desktop Sidebar */}
-      <div className="hidden md:flex h-full border-r border-border flex-col bg-card w-72 transition-colors duration-500">
+      {/* Desktop Sidebar - Hidden on mobile */}
+      <div className="hidden md:flex h-full border-r border-border flex-col bg-card w-72 transition-all duration-500 flex-shrink-0">
         <div className="p-8">
           <div className="flex items-center gap-2">
             <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary/20">
@@ -103,12 +104,12 @@ export const Sidebar = ({ role, isAdmin }: SidebarProps) => {
         </div>
 
         {!isAdmin && (
-          <div className="p-8 mt-auto border-t border-border space-y-2">
-            <Link href="/settings" className="w-full flex items-center gap-4 px-6 py-3 text-muted-foreground hover:text-foreground transition-colors group">
+          <div className="p-8 mt-auto border-t border-border space-y-1">
+            <Link href="/settings" className="w-full flex items-center gap-4 px-6 py-3 text-muted-foreground hover:text-foreground transition-all group rounded-xl hover:bg-muted/30">
               <Settings className="w-4 h-4 group-hover:text-primary transition-colors" />
               <span className="text-[10px] font-black uppercase tracking-widest">Settings</span>
             </Link>
-            <Link href="/help" className="w-full flex items-center gap-4 px-6 py-3 text-muted-foreground hover:text-foreground transition-colors group">
+            <Link href="/help" className="w-full flex items-center gap-4 px-6 py-3 text-muted-foreground hover:text-foreground transition-all group rounded-xl hover:bg-muted/30">
               <HelpCircle className="w-4 h-4 group-hover:text-primary transition-colors" />
               <span className="text-[10px] font-black uppercase tracking-widest">Help Center</span>
             </Link>

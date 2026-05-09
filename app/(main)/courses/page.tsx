@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Filter, PlayCircle, ShieldCheck, GraduationCap, Star, Zap } from "lucide-react";
+import { Search, Filter, PlayCircle, ShieldCheck, Zap, Star } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Sidebar } from "@/components/sidebar";
 import { Badge } from "@/components/ui/badge";
@@ -32,7 +32,7 @@ export default function CourseCataloguePage() {
 
       const { data } = await supabase
         .from('courses')
-        .select('*, profiles(full_name)')
+        .select('*, instructor:instructor_id(full_name)')
         .order('created_at', { ascending: false });
       
       setCourses(data || []);
@@ -56,10 +56,10 @@ export default function CourseCataloguePage() {
     <div className="flex h-screen bg-background overflow-hidden transition-colors duration-500 theme-transition">
       <Sidebar role={userProfile?.role || "learner"} isAdmin={userProfile?.is_admin} />
       
-      <main className="flex-1 flex flex-col overflow-hidden">
-        {/* Modern Header */}
-        <header className="h-auto min-h-32 bg-card border-b border-border px-6 md:px-12 py-6 flex flex-col lg:flex-row items-center justify-between gap-6 z-10 transition-colors duration-500">
-           <div className="w-full lg:w-auto">
+      <main className="flex-1 flex flex-col overflow-hidden w-full">
+        {/* Mobile-First Header */}
+        <header className="h-auto min-h-[120px] bg-card border-b border-border px-6 md:px-12 py-6 flex flex-col lg:flex-row items-center justify-between gap-6 z-10 transition-colors duration-500">
+           <div className="w-full lg:w-auto text-center lg:text-left">
               <h1 className="text-2xl md:text-3xl font-black text-foreground font-heading tracking-tighter">Course Catalogue</h1>
               <p className="text-[8px] md:text-[10px] font-black uppercase tracking-[0.3em] text-primary">Scholarly Excellence</p>
            </div>
@@ -68,13 +68,13 @@ export default function CourseCataloguePage() {
               <div className="relative w-full group">
                  <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
                  <Input 
-                   placeholder="Search courses, professors, topics..." 
-                   className="pl-16 h-14 md:h-16 rounded-[1.5rem] md:rounded-[2rem] border-border bg-muted/40 focus:bg-card focus:ring-primary/20 transition-all font-bold text-sm"
+                   placeholder="Search courses, topics..." 
+                   className="pl-16 h-14 md:h-16 rounded-2xl md:rounded-[2rem] border-border bg-muted/40 focus:bg-card focus:ring-primary/20 transition-all font-bold text-sm"
                    value={searchQuery}
                    onChange={(e) => setSearchQuery(e.target.value)}
                  />
               </div>
-              <button className="w-full md:w-auto h-14 md:h-16 px-8 rounded-[1.5rem] md:rounded-[2rem] bg-muted/40 border border-border flex items-center justify-center gap-3 hover:bg-muted/60 transition-colors">
+              <button className="w-full md:w-auto h-14 md:h-16 px-8 rounded-2xl md:rounded-[2rem] bg-muted/40 border border-border flex items-center justify-center gap-3 hover:bg-muted/60 transition-colors">
                  <Filter className="w-4 h-4 text-muted-foreground" />
                  <span className="text-[10px] font-black uppercase tracking-widest text-foreground">Filter</span>
               </button>
@@ -82,16 +82,16 @@ export default function CourseCataloguePage() {
         </header>
 
         {/* Scrollable Content */}
-        <div className="flex-1 overflow-y-auto custom-scrollbar bg-background transition-colors duration-500">
-           <div className="max-w-7xl mx-auto p-6 md:p-12 pb-32">
+        <div className="flex-1 overflow-y-auto custom-scrollbar bg-background transition-colors duration-500 w-full">
+           <div className="max-w-7xl mx-auto p-6 md:p-12 pb-40 lg:pb-32">
               
-              {/* Category Pills */}
+              {/* Category Pills - Scrollable on mobile */}
               <div className="flex items-center gap-3 mb-10 md:mb-16 overflow-x-auto pb-4 no-scrollbar">
                  {categories.map(cat => (
                     <button
                       key={cat}
                       onClick={() => setSelectedCategory(cat)}
-                      className={`px-6 md:px-8 py-2 md:py-3 rounded-full text-[10px] md:text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap ${
+                      className={`px-6 md:px-8 py-2.5 md:py-3 rounded-full text-[10px] md:text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap ${
                         selectedCategory === cat 
                           ? "bg-primary text-white shadow-xl shadow-primary/20 scale-105" 
                           : "bg-muted/40 text-muted-foreground hover:bg-muted/60"
@@ -102,7 +102,7 @@ export default function CourseCataloguePage() {
                  ))}
               </div>
 
-              {/* Course Grid */}
+              {/* Course Grid - Smart stacking */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12">
                  <AnimatePresence mode='popLayout'>
                     {filteredCourses.map((course, index) => (
@@ -112,7 +112,7 @@ export default function CourseCataloguePage() {
               </div>
 
               {filteredCourses.length === 0 && (
-                <div className="flex flex-col items-center justify-center py-32 opacity-20">
+                <div className="flex flex-col items-center justify-center py-32 opacity-20 text-center">
                    <Zap className="w-20 h-20 mb-6" />
                    <p className="text-xl font-black uppercase tracking-[0.5em]">No Assets Found</p>
                 </div>
@@ -143,9 +143,9 @@ function CatalogueCard({ course, index }: { course: any, index: number }) {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: index * 0.05 }}
-        className="bg-card rounded-[3.5rem] p-8 border border-border shadow-xl shadow-primary/5 hover:shadow-primary/15 hover:-translate-y-2 transition-all duration-500 flex flex-col h-full cursor-pointer overflow-hidden relative"
+        className="bg-card rounded-[2.5rem] md:rounded-[3.5rem] p-6 md:p-8 border border-border shadow-xl shadow-primary/5 hover:shadow-primary/15 hover:-translate-y-2 transition-all duration-500 flex flex-col h-full cursor-pointer overflow-hidden relative"
       >
-         <div className="relative aspect-[16/10] bg-muted overflow-hidden rounded-[2.5rem] mb-8 border border-border/50">
+         <div className="relative aspect-[16/10] bg-muted overflow-hidden rounded-2xl md:rounded-[2.5rem] mb-6 md:mb-8 border border-border/50">
             <img 
               src={course.image_url || getFallbackImage(course.category)} 
               alt={course.title}
@@ -163,24 +163,26 @@ function CatalogueCard({ course, index }: { course: any, index: number }) {
                <div className="flex items-center text-amber-500/80"><Star className="w-3 h-3 fill-current" /><Star className="w-3 h-3 fill-current" /><Star className="w-3 h-3 fill-current" /><Star className="w-3 h-3 fill-current" /><Star className="w-3 h-3 fill-current" /></div>
                <span className="text-[10px] font-black text-muted-foreground opacity-40 uppercase tracking-widest">(4.9/5)</span>
             </div>
-            <h3 className="text-xl font-black text-foreground font-heading group-hover:text-primary transition-colors line-clamp-2 min-h-[3.5rem] leading-[1.2] tracking-tight">
+            <h3 className="text-lg md:text-xl font-black text-foreground font-heading group-hover:text-primary transition-colors line-clamp-2 min-h-[3rem] md:min-h-[3.5rem] leading-[1.2] tracking-tight">
                {course.title}
             </h3>
-            <div className="flex items-center gap-3">
-               <div className="w-10 h-10 rounded-xl bg-primary/5 border border-primary/10 flex items-center justify-center transition-colors"><ShieldCheck className="w-4 h-4 text-primary" /></div>
-               <div className="text-[9px] font-black uppercase tracking-[0.15em] text-muted-foreground opacity-60">Verified Curriculum</div>
+            <div className="flex items-center gap-3 pt-2">
+               <div className="w-8 h-8 rounded-full bg-accent flex items-center justify-center text-[10px] font-black border border-border">
+                  {course.instructor?.full_name?.[0] || 'E'}
+               </div>
+               <div className="text-[10px] font-bold text-muted-foreground">Prof. {course.instructor?.full_name || "Expert"}</div>
             </div>
          </div>
 
-         <div className="flex justify-between items-center border-t border-border mt-8 pt-8 transition-colors">
+         <div className="flex justify-between items-center border-t border-border mt-6 md:mt-8 pt-6 md:pt-8 transition-colors">
             <div>
                <div className="text-[9px] font-black text-muted-foreground uppercase tracking-[0.2em] opacity-40 mb-1">Price</div>
-               <div className="text-2xl font-black text-secondary font-heading tracking-tight">₦{course.price.toLocaleString()}</div>
+               <div className="text-xl md:text-2xl font-black text-secondary font-heading tracking-tight">₦{course.price.toLocaleString()}</div>
             </div>
             <div className="flex flex-col items-end gap-2">
                <span className="text-[9px] font-black text-primary uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity">Enroll Now</span>
-               <div className="w-16 h-16 rounded-[1.5rem] bg-accent flex items-center justify-center text-white shadow-2xl shadow-primary/20 group-hover:bg-primary group-hover:scale-110 group-hover:rotate-6 transition-all duration-500">
-                  <PlayCircle className="w-8 h-8" />
+               <div className="w-12 h-12 md:w-16 md:h-16 rounded-xl md:rounded-[1.5rem] bg-accent flex items-center justify-center text-white shadow-2xl shadow-primary/20 group-hover:bg-primary group-hover:scale-110 group-hover:rotate-6 transition-all duration-500">
+                  <PlayCircle className="w-6 h-6 md:w-8 md:h-8" />
                </div>
             </div>
          </div>
