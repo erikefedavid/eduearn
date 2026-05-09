@@ -188,12 +188,15 @@ function CatalogueCard({ course }: { course: any }) {
 
        <div className="flex justify-between items-center border-t border-border mt-8 pt-8 transition-colors">
           <div>
+             <div className="text-[9px] font-black text-muted-foreground uppercase tracking-[0.2em] opacity-40 mb-1">Price</div>
              <div className="text-2xl font-black text-secondary font-heading tracking-tight">₦{course.price.toLocaleString()}</div>
-             <div className="text-[9px] font-black text-muted-foreground uppercase tracking-[0.2em] opacity-40">Enrollment Fee</div>
           </div>
-          <Button size="icon" className="w-16 h-16 rounded-[1.5rem] btn-gradient text-white shadow-2xl shadow-primary/20 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500">
-             <PlayCircle className="w-8 h-8" />
-          </Button>
+          <div className="flex flex-col items-end gap-2">
+             <span className="text-[9px] font-black text-primary uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity">Enroll Now</span>
+             <Button size="icon" className="w-16 h-16 rounded-[1.5rem] btn-gradient text-white shadow-2xl shadow-primary/20 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500">
+                <PlayCircle className="w-8 h-8" />
+             </Button>
+          </div>
        </div>
     </motion.div>
   );
