@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { BookOpen, DollarSign, Users, Zap, PlayCircle, ChevronRight } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -21,6 +22,7 @@ export default function LandingPage() {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   
   const navbarRef = useRef(null);
   const heroContentRef = useRef(null);
@@ -133,9 +135,8 @@ export default function LandingPage() {
     }
   }, [mounted]);
 
-  if (loading) return <LoadingScreen />;
 
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  if (loading) return <LoadingScreen />;
 
   return (
     <div className="flex flex-col min-h-screen bg-background relative overflow-hidden theme-transition">

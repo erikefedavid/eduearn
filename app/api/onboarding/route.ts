@@ -16,15 +16,17 @@ export async function POST(req: Request) {
       return new NextResponse('Invalid role', { status: 400 })
     }
 
-    // Update or create profile
+    // Update or create profile with robust metadata fallbacks
     const { error } = await supabaseAdmin
       .from('profiles')
       .upsert({
-        id: user.id, // Supabase Auth UID
-        full_name: user.user_metadata.full_name || 'User',
+        id: user.id,
+        full_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'New Scholar',
         email: user.email,
         role: role,
-        avatar_url: user.user_metadata.avatar_url || null,
+        avatar_url: user.user_metadata?.avatar_url || null,
+        status: 'active',
+        balance: 0,
         updated_at: new Date().toISOString(),
       })
 
