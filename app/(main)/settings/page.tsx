@@ -95,27 +95,27 @@ export default function SettingsPage() {
           </header>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-10 custom-scrollbar bg-background transition-colors duration-500">
+        <div className="flex-1 overflow-y-auto p-6 md:p-10 custom-scrollbar bg-background transition-colors duration-500">
            <div className="max-w-5xl mx-auto">
-              <div className="grid lg:grid-cols-4 gap-12">
-                 
-                 {/* Sidebar Tabs */}
-                 <div className="lg:col-span-1 space-y-2">
-                    {tabs.map((tab) => (
-                      <button
-                        key={tab.id}
-                        onClick={() => setActiveTab(tab.id)}
-                        className={`w-full flex items-center gap-4 px-6 py-4 rounded-2xl transition-all font-bold text-sm ${
-                          activeTab === tab.id 
-                            ? "bg-primary text-white shadow-lg shadow-primary/20" 
-                            : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
-                        }`}
-                      >
-                        <tab.icon className="w-4 h-4" />
-                        {tab.label}
-                      </button>
-                    ))}
-                 </div>
+               <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 md:gap-12">
+                  
+                  {/* Sidebar Tabs */}
+                  <div className="lg:col-span-1 flex lg:flex-col gap-2 overflow-x-auto pb-4 lg:pb-0 no-scrollbar">
+                     {tabs.map((tab) => (
+                       <button
+                         key={tab.id}
+                         onClick={() => setActiveTab(tab.id)}
+                         className={`flex-shrink-0 lg:w-full flex items-center gap-4 px-6 py-4 rounded-2xl transition-all font-bold text-sm ${
+                           activeTab === tab.id 
+                             ? "bg-primary text-white shadow-lg shadow-primary/20" 
+                             : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
+                         }`}
+                       >
+                         <tab.icon className="w-4 h-4" />
+                         <span className="whitespace-nowrap">{tab.label}</span>
+                       </button>
+                     ))}
+                  </div>
 
                  {/* Settings Panel */}
                  <div className="lg:col-span-3">

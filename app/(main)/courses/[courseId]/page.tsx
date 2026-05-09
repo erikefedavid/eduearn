@@ -79,23 +79,23 @@ export default function CourseDetailsPage({ params }: { params: Promise<{ course
       
       <main className="flex-1 flex flex-col overflow-hidden">
         {/* Header */}
-        <header className="h-24 bg-card border-b border-border px-10 flex items-center justify-between z-10 transition-colors duration-500">
+        <header className="h-24 bg-card border-b border-border px-6 md:px-10 flex items-center justify-between z-10 transition-colors duration-500">
           <Button variant="ghost" size="icon" onClick={() => router.back()} className="rounded-xl hover:bg-muted transition-colors">
              <ChevronLeft className="w-6 h-6 text-muted-foreground" />
           </Button>
           <div className="flex items-center gap-4">
-             <Button variant="ghost" className="font-bold text-muted-foreground hover:text-foreground transition-colors">Share Course</Button>
-             <Badge className="bg-primary/10 text-primary border-0 font-bold px-4 py-1">Academic Verification Active</Badge>
+             <Button variant="ghost" className="font-bold text-muted-foreground hover:text-foreground transition-colors hidden sm:inline-flex">Share Course</Button>
+             <Badge className="bg-primary/10 text-primary border-0 font-bold px-4 py-1 text-[8px] sm:text-[10px]">Academic Verification Active</Badge>
           </div>
         </header>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-10 custom-scrollbar">
-           <div className="max-w-6xl mx-auto py-10">
-              <div className="grid lg:grid-cols-3 gap-16">
+        <div className="flex-1 overflow-y-auto p-6 md:p-10 custom-scrollbar">
+           <div className="max-w-6xl mx-auto py-6 md:py-10">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 md:gap-16">
                  
                  {/* Main Content */}
-                 <div className="lg:col-span-2 space-y-12">
+                 <div className="lg:col-span-2 space-y-10 md:space-y-12">
                     <motion.div
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
@@ -104,10 +104,10 @@ export default function CourseDetailsPage({ params }: { params: Promise<{ course
                           <Badge className="bg-secondary text-white border-0 font-bold px-4">{course.category}</Badge>
                           <div className="flex items-center text-amber-500 gap-1">
                              <Star className="w-4 h-4 fill-current" />
-                             <span className="text-sm font-bold text-foreground">4.9 (2.4k reviews)</span>
+                             <span className="text-sm font-bold text-foreground">4.9</span>
                           </div>
                        </div>
-                       <h1 className="text-5xl font-bold text-foreground font-heading mb-6 leading-tight">{course.title}</h1>
+                       <h1 className="text-3xl md:text-5xl font-bold text-foreground font-heading mb-6 leading-tight">{course.title}</h1>
                        <div className="flex items-center gap-4 mb-10">
                           <div className="w-12 h-12 bg-muted rounded-2xl flex items-center justify-center transition-colors overflow-hidden">
                              {course.profiles?.avatar_url ? (

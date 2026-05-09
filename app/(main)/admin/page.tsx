@@ -119,37 +119,38 @@ export default function AdminDashboardPage() {
       
       <main className="flex-1 flex flex-col overflow-hidden">
         {/* Header */}
-        <header className="h-24 bg-card border-b border-border px-10 flex items-center justify-between z-10 transition-colors duration-500">
+        <header className="h-24 bg-card border-b border-border px-6 md:px-10 flex items-center justify-between z-10 transition-colors duration-500">
           <div className="flex items-center gap-4">
-             <div className="w-12 h-12 bg-red-500/10 rounded-2xl flex items-center justify-center border border-red-500/20">
-                <ShieldCheck className="w-6 h-6 text-red-500" />
+             <div className="w-10 h-10 md:w-12 md:h-12 bg-red-500/10 rounded-xl md:rounded-2xl flex items-center justify-center border border-red-500/20">
+                <ShieldCheck className="w-5 h-5 md:w-6 md:h-6 text-red-500" />
              </div>
              <div>
-                <h1 className="text-2xl font-black text-foreground font-heading">Command Center</h1>
-                <p className="text-[10px] font-black uppercase tracking-widest text-red-500">Administrator Protocol</p>
+                <h1 className="text-lg md:text-2xl font-black text-foreground font-heading">Command Center</h1>
+                <p className="text-[8px] md:text-[10px] font-black uppercase tracking-widest text-red-500">Administrator Protocol</p>
              </div>
           </div>
-          <div className="flex items-center gap-8">
-             <div className="text-right">
+          <div className="flex items-center gap-4 md:gap-8">
+             <div className="text-right hidden sm:block">
                 <div className="text-sm font-black text-foreground">{profile.full_name}</div>
                 <div className="text-[10px] font-black uppercase tracking-widest text-red-500">Super Admin</div>
              </div>
              <Button 
                variant="ghost" 
                onClick={onSignOut}
-               className="h-12 px-6 rounded-xl border border-red-500/20 text-red-500 font-black text-[10px] uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all"
+               className="h-10 md:h-12 px-4 md:px-6 rounded-xl border border-red-500/20 text-red-500 font-black text-[9px] md:text-[10px] uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all"
              >
-                Deactivate Protocol
+                <span className="sm:inline hidden">Deactivate Protocol</span>
+                <span className="sm:hidden inline">Exit</span>
              </Button>
           </div>
         </header>
 
         {/* Scrollable Content */}
-        <div className="flex-1 overflow-y-auto p-10 custom-scrollbar">
-           <div className="max-w-7xl mx-auto space-y-12 pb-20">
+        <div className="flex-1 overflow-y-auto p-6 md:p-10 custom-scrollbar">
+           <div className="max-w-7xl mx-auto space-y-12 pb-32 md:pb-20">
               
               {/* Stats Grid */}
-              <div className="grid md:grid-cols-4 gap-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
                  <AdminStatCard title="Total Citizens" value={stats.totalUsers} icon={<Users />} color="primary" />
                  <AdminStatCard title="Market Revenue" value={`₦${stats.totalRevenue.toLocaleString()}`} icon={<DollarSign />} color="green" />
                  <AdminStatCard title="Library Assets" value={stats.activeCourses} icon={<BookOpen />} color="secondary" />
@@ -157,7 +158,7 @@ export default function AdminDashboardPage() {
               </div>
 
               {/* Main Management Grid */}
-              <div className="grid lg:grid-cols-3 gap-12">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 md:gap-12">
                  
                  {/* Left Column: Management Tables */}
                  <div className="lg:col-span-2 space-y-12">

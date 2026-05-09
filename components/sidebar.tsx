@@ -60,46 +60,78 @@ export const Sidebar = ({ role, isAdmin }: SidebarProps) => {
     ] : [])
   ];
 
-  return (
-    <div className="h-full border-r border-border flex flex-col bg-card w-72 transition-colors duration-500">
-      <div className="p-8">
-        <div className="flex items-center gap-2">
-          <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary/20">
-            <Zap className="text-white w-6 h-6" />
-          </div>
-          <span className="text-2xl font-black tracking-tighter text-foreground font-heading">EduEarn</span>
-        </div>
-      </div>
-
-      <div className="flex flex-col flex-1 px-4 space-y-2 mt-4">
+    <>
+      {/* Mobile Nav Trigger */}
+      <div className="md:hidden fixed bottom-6 left-6 right-6 z-50 bg-card/80 backdrop-blur-xl border border-border p-3 rounded-[2.5rem] shadow-2xl flex items-center justify-around">
         {routes.map((route) => (
           <Link
             key={route.href}
             href={route.href}
-            className={`flex items-center gap-4 px-6 py-4 rounded-2xl transition-all group ${route.active
-                ? "bg-accent text-primary shadow-sm"
-                : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
-              }`}
+            className={`p-4 rounded-2xl transition-all ${route.active ? "bg-primary text-white shadow-lg" : "text-muted-foreground"}`}
           >
-            <route.icon className={`w-5 h-5 ${route.active ? "text-primary" : "text-muted-foreground group-hover:text-foreground"}`} />
-            <span className="font-bold text-sm tracking-wide">{route.label}</span>
-            {route.active && <ChevronRight className="w-4 h-4 ml-auto" />}
+            <route.icon className="w-6 h-6" />
           </Link>
         ))}
       </div>
 
-      {!isAdmin && (
-        <div className="p-8 mt-auto border-t border-border space-y-2">
-          <Link href="/settings" className="w-full flex items-center gap-4 px-6 py-3 text-muted-foreground hover:text-foreground transition-colors group">
-            <Settings className="w-4 h-4 group-hover:text-primary transition-colors" />
-            <span className="text-[10px] font-black uppercase tracking-widest">Settings</span>
-          </Link>
-          <Link href="/help" className="w-full flex items-center gap-4 px-6 py-3 text-muted-foreground hover:text-foreground transition-colors group">
-            <HelpCircle className="w-4 h-4 group-hover:text-primary transition-colors" />
-            <span className="text-[10px] font-black uppercase tracking-widest">Help Center</span>
-          </Link>
+      {/* Desktop Sidebar */}
+      <div className="hidden md:flex h-full border-r border-border flex-col bg-card w-72 transition-colors duration-500">
+        <div className="p-8">
+          <div className="flex items-center gap-2">
+            <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary/20">
+              <Zap className="text-white w-6 h-6" />
+            </div>
+            <span className="text-2xl font-black tracking-tighter text-foreground font-heading">EduEarn</span>
+          </div>
         </div>
-      )}
-    </div>
+
+        <div className="flex flex-col flex-1 px-4 space-y-2 mt-4">
+          {routes.map((route) => (
+            <Link
+              key={route.href}
+              href={route.href}
+              className={`flex items-center gap-4 px-6 py-4 rounded-2xl transition-all group ${route.active
+                  ? "bg-accent text-primary shadow-sm"
+                  : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
+                }`}
+            >
+              <route.icon className={`w-5 h-5 ${route.active ? "text-primary" : "text-muted-foreground group-hover:text-foreground"}`} />
+              <span className="font-bold text-sm tracking-wide">{route.label}</span>
+              {route.active && <ChevronRight className="w-4 h-4 ml-auto" />}
+            </Link>
+          ))}
+        </div>
+
+        {!isAdmin && (
+          <div className="p-8 mt-auto border-t border-border space-y-2">
+            <Link href="/settings" className="w-full flex items-center gap-4 px-6 py-3 text-muted-foreground hover:text-foreground transition-colors group">
+              <Settings className="w-4 h-4 group-hover:text-primary transition-colors" />
+              <span className="text-[10px] font-black uppercase tracking-widest">Settings</span>
+            </Link>
+            <Link href="/help" className="w-full flex items-center gap-4 px-6 py-3 text-muted-foreground hover:text-foreground transition-colors group">
+              <HelpCircle className="w-4 h-4 group-hover:text-primary transition-colors" />
+              <span className="text-[10px] font-black uppercase tracking-widest">Help Center</span>
+            </Link>
+          </div>
+        )}
+        
+        {isAdmin && (
+          <div className="p-8 mt-auto border-t border-border">
+            <button 
+              onClick={async () => {
+                const { createClient } = await import("@/lib/supabase/client");
+                const supabase = createClient();
+                await supabase.auth.signOut();
+                window.location.href = "/login";
+              }}
+              className="w-full flex items-center gap-4 px-6 py-4 text-red-500 hover:bg-red-500/10 rounded-2xl transition-all group"
+            >
+               <ShieldAlert className="w-5 h-5" />
+               <span className="text-[10px] font-black uppercase tracking-widest">Deactivate Protocol</span>
+            </button>
+          </div>
+        )}
+      </div>
+    </>
   );
 };

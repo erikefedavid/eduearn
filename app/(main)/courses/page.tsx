@@ -58,23 +58,23 @@ export default function CourseCataloguePage() {
       
       <main className="flex-1 flex flex-col overflow-hidden">
         {/* Modern Header */}
-        <header className="h-32 bg-card border-b border-border px-12 flex items-center justify-between z-10 transition-colors duration-500">
-           <div>
-              <h1 className="text-3xl font-black text-foreground font-heading tracking-tighter">Course Catalogue</h1>
-              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">Scholarly Excellence</p>
+        <header className="h-auto min-h-32 bg-card border-b border-border px-6 md:px-12 py-6 flex flex-col lg:flex-row items-center justify-between gap-6 z-10 transition-colors duration-500">
+           <div className="w-full lg:w-auto">
+              <h1 className="text-2xl md:text-3xl font-black text-foreground font-heading tracking-tighter">Course Catalogue</h1>
+              <p className="text-[8px] md:text-[10px] font-black uppercase tracking-[0.3em] text-primary">Scholarly Excellence</p>
            </div>
 
-           <div className="flex items-center gap-6 flex-1 max-w-2xl px-12">
+           <div className="flex flex-col md:flex-row items-center gap-4 w-full max-w-2xl">
               <div className="relative w-full group">
                  <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
                  <Input 
                    placeholder="Search courses, professors, topics..." 
-                   className="pl-16 h-16 rounded-[2rem] border-border bg-muted/40 focus:bg-card focus:ring-primary/20 transition-all font-bold text-sm"
+                   className="pl-16 h-14 md:h-16 rounded-[1.5rem] md:rounded-[2rem] border-border bg-muted/40 focus:bg-card focus:ring-primary/20 transition-all font-bold text-sm"
                    value={searchQuery}
                    onChange={(e) => setSearchQuery(e.target.value)}
                  />
               </div>
-              <button className="h-16 px-8 rounded-[2rem] bg-muted/40 border border-border flex items-center gap-3 hover:bg-muted/60 transition-colors">
+              <button className="w-full md:w-auto h-14 md:h-16 px-8 rounded-[1.5rem] md:rounded-[2rem] bg-muted/40 border border-border flex items-center justify-center gap-3 hover:bg-muted/60 transition-colors">
                  <Filter className="w-4 h-4 text-muted-foreground" />
                  <span className="text-[10px] font-black uppercase tracking-widest text-foreground">Filter</span>
               </button>
@@ -83,27 +83,27 @@ export default function CourseCataloguePage() {
 
         {/* Scrollable Content */}
         <div className="flex-1 overflow-y-auto custom-scrollbar bg-background transition-colors duration-500">
-           <div className="max-w-7xl mx-auto p-12 pb-32">
+           <div className="max-w-7xl mx-auto p-6 md:p-12 pb-32">
               
               {/* Category Pills */}
-              <div className="flex items-center gap-4 mb-16 overflow-x-auto pb-4 no-scrollbar">
+              <div className="flex items-center gap-3 mb-10 md:mb-16 overflow-x-auto pb-4 no-scrollbar">
                  {categories.map(cat => (
                     <button
                       key={cat}
                       onClick={() => setSelectedCategory(cat)}
-                      className={`px-8 py-3 rounded-full text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap ${
+                      className={`px-6 md:px-8 py-2 md:py-3 rounded-full text-[10px] md:text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap ${
                         selectedCategory === cat 
                           ? "bg-primary text-white shadow-xl shadow-primary/20 scale-105" 
                           : "bg-muted/40 text-muted-foreground hover:bg-muted/60"
                       }`}
                     >
-                      {cat} {cat === "All" ? `Courses` : ""}
+                      {cat}
                     </button>
                  ))}
               </div>
 
               {/* Course Grid */}
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-12">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12">
                  <AnimatePresence mode='popLayout'>
                     {filteredCourses.map((course, index) => (
                        <CatalogueCard key={course.id} course={course} index={index} />
