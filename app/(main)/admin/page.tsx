@@ -88,9 +88,21 @@ export default function AdminDashboardPage() {
     checkAdmin();
   }, [router, supabase]);
 
-  const onToggleBan = async (userId: string, isBanned: boolean) => {
-    // Logic for banning/unbanning
-    toast.success(isBanned ? "User restricted" : "User access restored");
+  const onToggleBan = async (userId: string, currentStatus: string) => {
+    const newStatus = currentStatus === 'active' ? 'restricted' : 'active';
+    
+    const { error } = await supabase
+      .from('profiles')
+      .update({ status: newStatus })
+      .eq('id', userId);
+
+    if (error) {
+      toast.error("Failed to update status");
+      return;
+    }
+
+    setUsers(users.map(u => u.id === userId ? { ...u, status: newStatus } : u));
+    toast.success(newStatus === 'restricted' ? "User access restricted" : "User access restored");
   };
 
   if (loading) return <LoadingScreen />;
@@ -171,15 +183,24 @@ export default function AdminDashboardPage() {
                                            {u.role}
                                         </Badge>
                                      </td>
-                                     <td className="px-6 py-6">
-                                        <div className="flex items-center gap-2">
-                                           <div className="w-2 h-2 rounded-full bg-green-500" />
-                                           <span className="text-[10px] font-black uppercase tracking-widest text-foreground">Active</span>
-                                        </div>
-                                     </td>
-                                     <td className="px-10 py-6 text-right">
-                                        <Button variant="ghost" size="icon" className="rounded-xl text-muted-foreground hover:text-red-500"><Ban className="w-4 h-4" /></Button>
-                                     </td>
+                                      <td className="px-6 py-6">
+                                         <div className="flex items-center gap-2">
+                                            <div className={`w-2 h-2 rounded-full ${u.status === 'restricted' ? 'bg-red-500' : 'bg-green-500'}`} />
+                                            <span className="text-[10px] font-black uppercase tracking-widest text-foreground">
+                                               {u.status === 'restricted' ? 'Restricted' : 'Active'}
+                                            </span>
+                                         </div>
+                                      </td>
+                                      <td className="px-10 py-6 text-right">
+                                         <Button 
+                                           variant="ghost" 
+                                           size="icon" 
+                                           onClick={() => onToggleBan(u.id, u.status || 'active')}
+                                           className={`rounded-xl ${u.status === 'restricted' ? 'text-green-500 hover:bg-green-500/10' : 'text-red-500 hover:bg-red-500/10'}`}
+                                         >
+                                            {u.status === 'restricted' ? <CheckCircle2 className="w-4 h-4" /> : <Ban className="w-4 h-4" />}
+                                         </Button>
+                                      </td>
                                   </tr>
                                 ))}
                              </tbody>
