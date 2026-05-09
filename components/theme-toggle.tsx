@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 
 export function ThemeToggle() {
-  const { theme, setTheme } = useTheme();
+  const { theme, setTheme, resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => setMounted(true), []);
@@ -18,11 +18,11 @@ export function ThemeToggle() {
     <Button
       variant="ghost"
       size="icon"
-      onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+      onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
       className="rounded-xl w-10 h-10 hover:bg-primary/10 transition-colors overflow-hidden"
     >
       <AnimatePresence mode="wait">
-        {theme === "dark" ? (
+        {resolvedTheme === "dark" ? (
           <motion.div
             key="moon"
             initial={{ y: 20, opacity: 0, rotate: 45 }}
