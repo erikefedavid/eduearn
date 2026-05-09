@@ -142,6 +142,36 @@ export default function SettingsPage() {
 }
 
 function ProfileSettings({ profile }: { profile: any }) {
+  const supabase = createClient();
+  const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    full_name: profile?.full_name || "",
+    field_of_study: profile?.field_of_study || "",
+    bio: profile?.bio || "",
+  });
+
+  const onSave = async () => {
+    try {
+      setLoading(true);
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          full_name: formData.full_name,
+          field_of_study: formData.field_of_study,
+          bio: formData.bio,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', profile.id);
+
+      if (error) throw error;
+      toast.success("Identity updated successfully!");
+    } catch (error: any) {
+      toast.error(error.message || "Failed to update profile");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="space-y-10">
        <div className="flex items-center gap-8">
@@ -159,33 +189,48 @@ function ProfileSettings({ profile }: { profile: any }) {
           </div>
           <div>
              <h3 className="text-xl font-bold text-foreground font-heading">Public Identity</h3>
-             <p className="text-xs text-muted-foreground font-medium">This is how the community sees you.</p>
+             <p className="text-xs text-muted-foreground font-medium transition-colors">This is how the community sees you.</p>
           </div>
        </div>
 
        <div className="grid sm:grid-cols-2 gap-8">
           <div className="space-y-2">
              <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground px-1">Full Name</label>
-             <Input defaultValue={profile?.full_name} className="h-14 rounded-xl bg-muted/30 border-border focus:ring-primary/20 font-bold" />
+             <Input 
+               value={formData.full_name} 
+               onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
+               className="h-14 rounded-xl bg-muted/30 border-border focus:ring-primary/20 font-bold" 
+             />
           </div>
           <div className="space-y-2">
              <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground px-1">
                 {profile?.role === "instructor" ? "Academic Title" : "Field of Study"}
              </label>
-             <Input placeholder={profile?.role === "instructor" ? "e.g. Professor, Dr." : "e.g. Computer Science"} className="h-14 rounded-xl bg-muted/30 border-border focus:ring-primary/20 font-bold" />
+             <Input 
+               placeholder={profile?.role === "instructor" ? "e.g. Professor, Dr." : "e.g. Computer Science"} 
+               value={formData.field_of_study}
+               onChange={(e) => setFormData({ ...formData, field_of_study: e.target.value })}
+               className="h-14 rounded-xl bg-muted/30 border-border focus:ring-primary/20 font-bold" 
+             />
           </div>
        </div>
 
        <div className="space-y-2">
           <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground px-1">Biography</label>
           <textarea 
-            className="w-full h-32 rounded-2xl bg-muted/30 border border-border p-6 font-medium text-sm focus:ring-2 focus:ring-primary/10 transition-all outline-none" 
+            className="w-full h-32 rounded-2xl bg-muted/30 border border-border p-6 font-medium text-sm focus:ring-2 focus:ring-primary/10 transition-all outline-none bg-transparent" 
             placeholder="A short introduction..."
+            value={formData.bio}
+            onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
           />
        </div>
 
-       <Button className="btn-gradient text-white rounded-xl px-10 h-14 font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20">
-          Save Identity Changes
+       <Button 
+         onClick={onSave}
+         disabled={loading}
+         className="btn-gradient text-white rounded-xl px-10 h-14 font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20"
+       >
+          {loading ? "Saving..." : "Save Identity Changes"}
        </Button>
     </div>
   );
