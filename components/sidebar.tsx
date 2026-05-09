@@ -37,12 +37,12 @@ export const Sidebar = ({ role, isAdmin }: SidebarProps) => {
       active: pathname === "/courses" || pathname.startsWith("/courses/"),
     },
     {
-      label: role === "instructor" ? "My Courses" : "My Learning",
+      label: isAdmin ? "System Overview" : role === "instructor" ? "My Courses" : "My Learning",
       icon: GraduationCap,
-      href: role === "instructor" ? "/instructor/courses" : "/my-learning",
-      active: pathname.startsWith(role === "instructor" ? "/instructor/courses" : "/my-learning"),
+      href: isAdmin ? "/admin" : role === "instructor" ? "/instructor/courses" : "/my-learning",
+      active: pathname === "/admin" || pathname.startsWith(role === "instructor" ? "/instructor/courses" : "/my-learning"),
     },
-    ...(role === "instructor" ? [
+    ...(!isAdmin && role === "instructor" ? [
       {
         label: "Create Course",
         icon: PlusCircle,
@@ -56,7 +56,7 @@ export const Sidebar = ({ role, isAdmin }: SidebarProps) => {
         active: pathname === "/instructor/earnings",
       }
     ] : []),
-    ...(isAdmin ? [
+    ...(isAdmin && pathname !== "/admin" ? [
       {
         label: "Admin Center",
         icon: ShieldAlert,
