@@ -21,6 +21,7 @@ import { Sidebar } from "@/components/sidebar";
 import { Badge } from "@/components/ui/badge";
 import { PaymentButton } from "@/components/payment-button";
 import { LoadingScreen } from "@/components/loading-screen";
+import { toast } from "sonner";
 
 export default function CourseDetailsPage({ params }: { params: Promise<{ courseId: string }> }) {
   const { courseId } = use(params);
@@ -127,19 +128,17 @@ export default function CourseDetailsPage({ params }: { params: Promise<{ course
                       animate={{ opacity: 1, scale: 1 }}
                       className="aspect-video bg-muted rounded-[3rem] overflow-hidden relative shadow-2xl shadow-primary/5 border border-border transition-colors"
                     >
-                       {course.thumbnail_url ? (
-                         <Image 
-                           src={course.thumbnail_url} 
-                           alt={course.title}
-                           fill
-                           className="object-cover"
-                           priority
-                         />
-                       ) : (
-                         <div className="w-full h-full flex items-center justify-center">
-                            <PlayCircle className="w-20 h-20 text-muted-foreground opacity-30" />
-                         </div>
-                       )}
+                       <img 
+                         src={course.image_url || {
+                           "Technology": "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=2070&auto=format&fit=crop",
+                           "Law": "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?q=80&w=2070&auto=format&fit=crop",
+                           "Engineering": "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=2070&auto=format&fit=crop",
+                           "Medicine": "https://images.unsplash.com/photo-1505751172107-597d5a4d4b1b?q=80&w=2070&auto=format&fit=crop",
+                           "Business": "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2070&auto=format&fit=crop",
+                         }[course.category as string] || "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=2070&auto=format&fit=crop"} 
+                         alt={course.title}
+                         className="w-full h-full object-cover"
+                       />
                     </motion.div>
 
                     <div className="space-y-6">
