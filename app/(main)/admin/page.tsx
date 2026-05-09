@@ -71,7 +71,7 @@ export default function AdminDashboardPage() {
       // 2. Fetch Courses
       const { data: courseData } = await supabase
         .from('courses')
-        .select('*, profiles:instructor_id(full_name)')
+        .select('*, profiles(full_name)')
         .order('created_at', { ascending: false });
 
       // 3. Fetch Stats
@@ -87,6 +87,12 @@ export default function AdminDashboardPage() {
 
     checkAdmin();
   }, [router, supabase]);
+
+  const onSignOut = async () => {
+    await supabase.auth.signOut();
+    router.push("/login");
+    toast.success("Admin Protocol Deactivated");
+  };
 
   const onToggleBan = async (userId: string, currentStatus: string) => {
     const newStatus = currentStatus === 'active' ? 'restricted' : 'active';
@@ -123,11 +129,18 @@ export default function AdminDashboardPage() {
                 <p className="text-[10px] font-black uppercase tracking-widest text-red-500">Administrator Protocol</p>
              </div>
           </div>
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-8">
              <div className="text-right">
                 <div className="text-sm font-black text-foreground">{profile.full_name}</div>
                 <div className="text-[10px] font-black uppercase tracking-widest text-red-500">Super Admin</div>
              </div>
+             <Button 
+               variant="ghost" 
+               onClick={onSignOut}
+               className="h-12 px-6 rounded-xl border border-red-500/20 text-red-500 font-black text-[10px] uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all"
+             >
+                Deactivate Protocol
+             </Button>
           </div>
         </header>
 
