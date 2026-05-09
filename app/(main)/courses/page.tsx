@@ -155,20 +155,16 @@ function CatalogueCard({ course }: { course: any }) {
       animate={{ opacity: 1, y: 0 }}
       className="group bg-card rounded-[3.5rem] p-8 border border-border shadow-xl shadow-primary/5 hover:shadow-primary/15 hover:-translate-y-2 transition-all duration-500 flex flex-col h-full cursor-pointer overflow-hidden relative"
     >
-       <div className="aspect-video bg-muted rounded-[2.5rem] mb-8 overflow-hidden relative border border-border transition-colors">
-          {course.thumbnail_url ? (
-            <Image 
-              src={course.thumbnail_url} 
-              alt={course.title}
-              fill
-              className="object-cover group-hover:scale-110 transition-transform duration-1000"
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center text-muted-foreground font-black text-xs uppercase tracking-widest opacity-30">EduEarn Preview</div>
-          )}
-          <div className="absolute top-6 left-6 z-10">
-             <Badge className="bg-primary text-white border-0 font-black text-[9px] uppercase tracking-[0.2em] shadow-xl px-4 py-1.5">{course.category}</Badge>
+       <div className="relative aspect-[16/10] bg-muted overflow-hidden rounded-[2.5rem] mb-8">
+          <img 
+            src={course.image_url || `https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=2070&auto=format&fit=crop`} 
+            alt={course.title}
+            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+          />
+          <div className="absolute top-4 left-4">
+             <Badge className="bg-primary text-white border-none rounded-lg px-3 py-1 text-[9px] font-black uppercase tracking-widest shadow-lg">
+                {course.category}
+             </Badge>
           </div>
        </div>
 

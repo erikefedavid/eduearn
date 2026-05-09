@@ -2,13 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { 
-  LayoutDashboard, 
-  Search, 
-  GraduationCap, 
-  PlusCircle, 
-  Wallet, 
-  Settings, 
+import {
+  LayoutDashboard,
+  Search,
+  GraduationCap,
+  PlusCircle,
+  Wallet,
+  Settings,
   HelpCircle,
   Zap,
   ChevronRight,
@@ -30,7 +30,7 @@ export const Sidebar = ({ role, isAdmin }: SidebarProps) => {
       href: "/dashboard",
       active: pathname === "/dashboard",
     },
-    ...(!isAdmin ? [
+    ...(role === "learner" && !isAdmin ? [
       {
         label: "Browse Courses",
         icon: Search,
@@ -76,11 +76,10 @@ export const Sidebar = ({ role, isAdmin }: SidebarProps) => {
           <Link
             key={route.href}
             href={route.href}
-            className={`flex items-center gap-4 px-6 py-4 rounded-2xl transition-all group ${
-              route.active 
-                ? "bg-accent text-primary shadow-sm" 
+            className={`flex items-center gap-4 px-6 py-4 rounded-2xl transition-all group ${route.active
+                ? "bg-accent text-primary shadow-sm"
                 : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
-            }`}
+              }`}
           >
             <route.icon className={`w-5 h-5 ${route.active ? "text-primary" : "text-muted-foreground group-hover:text-foreground"}`} />
             <span className="font-bold text-sm tracking-wide">{route.label}</span>
@@ -92,12 +91,12 @@ export const Sidebar = ({ role, isAdmin }: SidebarProps) => {
       {!isAdmin && (
         <div className="p-8 mt-auto border-t border-border space-y-2">
           <Link href="/settings" className="w-full flex items-center gap-4 px-6 py-3 text-muted-foreground hover:text-foreground transition-colors group">
-             <Settings className="w-4 h-4 group-hover:text-primary transition-colors" />
-             <span className="text-[10px] font-black uppercase tracking-widest">Settings</span>
+            <Settings className="w-4 h-4 group-hover:text-primary transition-colors" />
+            <span className="text-[10px] font-black uppercase tracking-widest">Settings</span>
           </Link>
           <Link href="/help" className="w-full flex items-center gap-4 px-6 py-3 text-muted-foreground hover:text-foreground transition-colors group">
-             <HelpCircle className="w-4 h-4 group-hover:text-primary transition-colors" />
-             <span className="text-[10px] font-black uppercase tracking-widest">Help Center</span>
+            <HelpCircle className="w-4 h-4 group-hover:text-primary transition-colors" />
+            <span className="text-[10px] font-black uppercase tracking-widest">Help Center</span>
           </Link>
         </div>
       )}

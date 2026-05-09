@@ -86,7 +86,7 @@ export default function OnboardingPage() {
             description="Create high-quality courses, share your expertise, and earn extra revenue."
             icon={<Briefcase className="w-12 h-12 text-secondary" />}
             onClick={() => selectRole("instructor")}
-            isLoading={loading === "learner"}
+            isLoading={loading === "instructor"}
             disabled={!!loading}
           />
         </div>
