@@ -159,7 +159,7 @@ export default function AdminDashboardPage() {
                                   <tr key={u.id} className="border-b border-border/50 hover:bg-muted/10 transition-colors">
                                      <td className="px-10 py-6">
                                         <div className="flex items-center gap-4">
-                                           <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center font-black text-xs">{u.full_name[0]}</div>
+                                           <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center font-black text-xs">{u.full_name?.[0] || 'U'}</div>
                                            <div>
                                               <div className="text-sm font-bold text-foreground">{u.full_name}</div>
                                               <div className="text-[10px] font-medium text-muted-foreground">{u.email}</div>
@@ -188,14 +188,14 @@ export default function AdminDashboardPage() {
                     </div>
                  </div>
 
-                 {/* Side Column: Alerts & Moderation */}
+                 {/* Side Column: Activity & Moderation */}
                  <div className="space-y-12">
                     <div className="bg-card rounded-[3.5rem] p-10 border border-border shadow-xl shadow-primary/5 transition-colors">
-                       <h3 className="text-xl font-black text-foreground font-heading mb-8">System Health</h3>
+                       <h3 className="text-xl font-black text-foreground font-heading mb-8">Global Audit Log</h3>
                        <div className="space-y-6">
-                          <HealthItem label="Database Connectivity" status="Excellent" />
-                          <HealthItem label="Paystack Gateway" status="Operational" />
-                          <HealthItem label="Content Delivery" status="High Priority" />
+                          <ActivityRow label="New Instructor Signup" desc="Professor Adebayo joined the platform" time="2m ago" color="text-primary" />
+                          <ActivityRow label="Course Enrollment" desc="Student bought 'Nigerian Tax Law'" time="15m ago" color="text-green-500" />
+                          <ActivityRow label="Payout Processed" desc="₦15,000 sent to Dr. Amina" time="1h ago" color="text-amber-500" />
                        </div>
                     </div>
 
@@ -236,6 +236,18 @@ function AdminStatCard({ title, value, icon, color }: any) {
        </div>
        <div className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-1">{title}</div>
        <div className="text-3xl font-black text-foreground font-heading">{value}</div>
+    </div>
+  );
+}
+
+function ActivityRow({ label, desc, time, color }: any) {
+  return (
+    <div className="flex justify-between items-start">
+       <div>
+          <div className={`text-[10px] font-black uppercase tracking-widest mb-1 ${color}`}>{label}</div>
+          <div className="text-xs font-bold text-foreground">{desc}</div>
+       </div>
+       <div className="text-[9px] font-medium text-muted-foreground">{time}</div>
     </div>
   );
 }
