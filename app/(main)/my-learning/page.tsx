@@ -11,6 +11,36 @@ import { Sidebar } from "@/components/sidebar";
 import { Badge } from "@/components/ui/badge";
 import { LoadingScreen } from "@/components/loading-screen";
 
+const DUMMY_ENROLLMENTS = [
+  {
+    id: "demo-enroll-1",
+    course_id: "demo-1",
+    course: {
+      title: "Nigerian Tax Law & Compliance",
+      category: "Law",
+      thumbnail_url: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?q=80&w=400&auto=format&fit=crop",
+    },
+  },
+  {
+    id: "demo-enroll-2",
+    course_id: "demo-2",
+    course: {
+      title: "Data Analytics with Python",
+      category: "Technology",
+      thumbnail_url: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=400&auto=format&fit=crop",
+    },
+  },
+  {
+    id: "demo-enroll-3",
+    course_id: "demo-5",
+    course: {
+      title: "Entrepreneurship & Venture Capital",
+      category: "Business",
+      thumbnail_url: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=400&auto=format&fit=crop",
+    },
+  },
+];
+
 export default function MyLearningPage() {
   const supabase = createClient();
   const [enrollments, setEnrollments] = useState<any[]>([]);
@@ -38,7 +68,7 @@ export default function MyLearningPage() {
         `)
         .eq('user_id', user.id);
 
-      setEnrollments(data || []);
+      setEnrollments(data && data.length > 0 ? data : DUMMY_ENROLLMENTS);
       setLoading(false);
     }
     loadData();

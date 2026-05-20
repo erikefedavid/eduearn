@@ -10,6 +10,63 @@ import { Input } from "@/components/ui/input";
 import { LoadingScreen } from "@/components/loading-screen";
 import Link from "next/link";
 
+const DUMMY_COURSES = [
+  {
+    id: "demo-1",
+    title: "Nigerian Tax Law & Compliance",
+    description: "Master the complexities of Nigerian tax regulations, FIRS guidelines, and corporate compliance strategies.",
+    category: "Law",
+    price: 15000,
+    image_url: null,
+    instructor: { full_name: "Adebayo Ogunleye" },
+  },
+  {
+    id: "demo-2",
+    title: "Data Analytics with Python",
+    description: "Learn data wrangling, visualization, and machine learning fundamentals using Python and Pandas.",
+    category: "Technology",
+    price: 25000,
+    image_url: null,
+    instructor: { full_name: "Chidinma Eze" },
+  },
+  {
+    id: "demo-3",
+    title: "Petroleum Engineering Fundamentals",
+    description: "Core principles of upstream oil and gas operations, reservoir management, and drilling technologies.",
+    category: "Engineering",
+    price: 30000,
+    image_url: null,
+    instructor: { full_name: "Yusuf Abubakar" },
+  },
+  {
+    id: "demo-4",
+    title: "Clinical Pharmacology",
+    description: "Advanced pharmacokinetics, drug interactions, and evidence-based prescribing for healthcare professionals.",
+    category: "Medicine",
+    price: 35000,
+    image_url: null,
+    instructor: { full_name: "Ngozi Okonkwo" },
+  },
+  {
+    id: "demo-5",
+    title: "Entrepreneurship & Venture Capital",
+    description: "Build scalable startups, pitch to investors, and navigate the African venture capital landscape.",
+    category: "Business",
+    price: 20000,
+    image_url: null,
+    instructor: { full_name: "Emeka Nwosu" },
+  },
+  {
+    id: "demo-6",
+    title: "Renewable Energy Systems",
+    description: "Solar, wind, and hybrid energy solutions for Sub-Saharan Africa's power infrastructure challenges.",
+    category: "Engineering",
+    price: 28000,
+    image_url: null,
+    instructor: { full_name: "Fatima Bello" },
+  },
+];
+
 export default function CourseCataloguePage() {
   const supabase = createClient();
   const [courses, setCourses] = useState<any[]>([]);
@@ -35,7 +92,7 @@ export default function CourseCataloguePage() {
         .select('*, instructor:instructor_id(full_name)')
         .order('created_at', { ascending: false });
       
-      setCourses(data || []);
+      setCourses(data && data.length > 0 ? data : DUMMY_COURSES);
       setLoading(false);
     }
     loadData();

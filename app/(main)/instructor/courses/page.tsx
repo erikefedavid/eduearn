@@ -23,6 +23,33 @@ import { Badge } from "@/components/ui/badge";
 import { LoadingScreen } from "@/components/loading-screen";
 import { toast } from "sonner";
 
+const DUMMY_INSTRUCTOR_COURSES = [
+  {
+    id: "demo-inst-1",
+    title: "Nigerian Tax Law & Compliance",
+    category: "Law",
+    price: 15000,
+    is_published: true,
+    thumbnail_url: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?q=80&w=400&auto=format&fit=crop",
+  },
+  {
+    id: "demo-inst-2",
+    title: "Data Analytics with Python",
+    category: "Technology",
+    price: 25000,
+    is_published: true,
+    thumbnail_url: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=400&auto=format&fit=crop",
+  },
+  {
+    id: "demo-inst-3",
+    title: "Renewable Energy Systems",
+    category: "Engineering",
+    price: 28000,
+    is_published: false,
+    thumbnail_url: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=400&auto=format&fit=crop",
+  },
+];
+
 export default function InstructorCoursesPage() {
   const router = useRouter();
   const supabase = createClient();
@@ -55,7 +82,7 @@ export default function InstructorCoursesPage() {
         .eq('instructor_id', user.id)
         .order('created_at', { ascending: false });
 
-      setCourses(data || []);
+      setCourses(data && data.length > 0 ? data : DUMMY_INSTRUCTOR_COURSES);
       setLoading(false);
     }
     loadData();

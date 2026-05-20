@@ -123,7 +123,7 @@ export default function DashboardPage() {
                     <p className="text-indigo-100 dark:text-emerald-50 text-lg font-medium mb-8 leading-relaxed">
                       {profile.role === "instructor" 
                         ? "Your courses have reached 142 new students this week. You're bridging the knowledge gap in Nigeria."
-                        : "Ready to advance your academic journey? You have 0 courses in progress. Let's start learning."}
+                        : "You have 3 courses in progress and a 7-day study streak. Keep up the academic excellence!"}
                     </p>
                     <div className="flex items-center gap-4">
                        <div className="flex items-center gap-2 bg-white/10 px-6 py-3 rounded-2xl border border-white/10">
@@ -197,12 +197,29 @@ function InstructorView({ profile, setProfile }: { profile: any, setProfile: any
               </Button>
            </div>
            
-           <div className="flex flex-col items-center justify-center py-20 bg-muted/50 rounded-[3rem] border-2 border-dashed border-border transition-colors">
-              <div className="bg-card p-6 rounded-3xl shadow-sm mb-6 transition-colors">
-                 <BarChart3 className="w-10 h-10 text-muted-foreground opacity-20" />
-              </div>
-              <p className="text-muted-foreground font-black uppercase tracking-widest text-[10px] mb-2">Academic Inventory</p>
-              <h4 className="text-foreground font-bold mb-6">You haven't launched any courses yet.</h4>
+           <div className="space-y-6">
+              {[
+                { title: "Nigerian Tax Law & Compliance", category: "Law", students: 87, revenue: "₦1,305,000", status: "Published", image: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?q=80&w=400&auto=format&fit=crop" },
+                { title: "Data Analytics with Python", category: "Technology", students: 42, revenue: "₦1,050,000", status: "Published", image: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=400&auto=format&fit=crop" },
+                { title: "Renewable Energy Systems", category: "Engineering", students: 13, revenue: "₦364,000", status: "Draft", image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=400&auto=format&fit=crop" },
+              ].map((course, i) => (
+                <div key={i} className="flex items-center gap-6 p-6 bg-muted/30 rounded-3xl border border-border hover:border-primary/30 hover:bg-muted/50 transition-all cursor-pointer group" onClick={() => router.push("/instructor/courses/new")}>
+                   <div className="w-16 h-16 rounded-2xl overflow-hidden bg-muted border border-border flex-shrink-0">
+                      <img src={course.image} alt={course.title} className="w-full h-full object-cover" />
+                   </div>
+                   <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                         <span className="text-[10px] font-black uppercase tracking-widest text-primary">{course.category}</span>
+                         <span className={`text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full ${course.status === "Published" ? "bg-green-500/10 text-green-500" : "bg-orange-500/10 text-orange-500"}`}>{course.status}</span>
+                      </div>
+                      <div className="text-sm font-black text-foreground truncate group-hover:text-primary transition-colors">{course.title}</div>
+                   </div>
+                   <div className="text-right flex-shrink-0 hidden sm:block">
+                      <div className="text-xs font-black text-foreground">{course.students} students</div>
+                      <div className="text-[10px] font-bold text-secondary">{course.revenue}</div>
+                   </div>
+                </div>
+              ))}
            </div>
         </div>
       </div>
@@ -267,42 +284,132 @@ function InstructorView({ profile, setProfile }: { profile: any, setProfile: any
 }
 
 function LearnerView({ profile }: { profile: any }) {
+  const router = useRouter();
+
+  const dummyProgress = [
+    { id: 1, title: "Nigerian Tax Law & Compliance", category: "Law", progress: 68, instructor: "Prof. Adebayo Ogunleye", image: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?q=80&w=400&auto=format&fit=crop" },
+    { id: 2, title: "Data Analytics with Python", category: "Technology", progress: 35, instructor: "Dr. Chidinma Eze", image: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=400&auto=format&fit=crop" },
+    { id: 3, title: "Entrepreneurship & Venture Capital", category: "Business", progress: 12, instructor: "Prof. Emeka Nwosu", image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=400&auto=format&fit=crop" },
+  ];
+
   return (
     <div className="grid lg:grid-cols-3 gap-12">
        <div className="lg:col-span-2 space-y-12">
           <div className="grid sm:grid-cols-2 gap-8">
              <StatCard 
                title="Courses Enrolled" 
-               value="0" 
+               value="3" 
                icon={<GraduationCap className="w-6 h-6 text-primary" />} 
-               trend="0 completed"
+               trend="1 completed"
              />
              <StatCard 
                title="Learning Hours" 
-               value="0h" 
+               value="12h" 
                icon={<Clock className="w-6 h-6 text-secondary" />} 
-               trend="Stay consistent!"
+               trend="+3h this week"
              />
           </div>
+
           <div className="bg-card rounded-[3.5rem] p-10 border border-border shadow-xl shadow-primary/5 transition-colors">
-             <h3 className="text-2xl font-black text-foreground font-heading mb-10">Academic Progress</h3>
-             <div className="flex flex-col items-center justify-center py-24 bg-muted/50 rounded-[3rem] border-2 border-dashed border-border transition-colors">
-                <p className="text-muted-foreground font-black uppercase tracking-widest text-[10px] mb-2">No active curricula</p>
-                <Button variant="outline" className="rounded-2xl font-black text-xs uppercase tracking-widest border-border h-12 px-8">Browse Catalogue</Button>
+             <div className="flex justify-between items-center mb-10">
+                <h3 className="text-2xl font-black text-foreground font-heading">Academic Progress</h3>
+                <Button variant="ghost" onClick={() => router.push("/my-learning")} className="text-primary font-black text-[10px] uppercase tracking-widest hover:bg-primary/5">View All</Button>
+             </div>
+             <div className="space-y-6">
+                {dummyProgress.map((course) => (
+                  <div key={course.id} className="flex items-center gap-6 p-5 bg-muted/30 rounded-3xl border border-border hover:bg-muted/50 transition-all cursor-pointer group" onClick={() => router.push("/courses")}>
+                     <div className="w-16 h-16 rounded-2xl overflow-hidden bg-muted border border-border flex-shrink-0">
+                        <img src={course.image} alt={course.title} className="w-full h-full object-cover" />
+                     </div>
+                     <div className="flex-1 min-w-0">
+                        <div className="text-[10px] font-black uppercase tracking-widest text-primary mb-1">{course.category}</div>
+                        <div className="text-sm font-black text-foreground truncate group-hover:text-primary transition-colors">{course.title}</div>
+                        <div className="text-[10px] font-medium text-muted-foreground">{course.instructor}</div>
+                     </div>
+                     <div className="text-right flex-shrink-0">
+                        <div className="text-lg font-black text-primary">{course.progress}%</div>
+                        <div className="w-20 h-1.5 bg-muted rounded-full overflow-hidden mt-1">
+                           <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${course.progress}%` }} />
+                        </div>
+                     </div>
+                  </div>
+                ))}
+             </div>
+          </div>
+
+          {/* Recommended Courses */}
+          <div className="bg-card rounded-[3.5rem] p-10 border border-border shadow-xl shadow-primary/5 transition-colors">
+             <div className="flex justify-between items-center mb-10">
+                <h3 className="text-2xl font-black text-foreground font-heading">Recommended For You</h3>
+                <Button variant="ghost" onClick={() => router.push("/courses")} className="text-primary font-black text-[10px] uppercase tracking-widest hover:bg-primary/5">Browse All</Button>
+             </div>
+             <div className="grid sm:grid-cols-2 gap-6">
+                {[
+                  { title: "Clinical Pharmacology", category: "Medicine", price: "₦35,000", instructor: "Dr. Ngozi Okonkwo", image: "https://images.unsplash.com/photo-1505751172107-597d5a4d4b1b?q=80&w=400&auto=format&fit=crop" },
+                  { title: "Renewable Energy Systems", category: "Engineering", price: "₦28,000", instructor: "Prof. Fatima Bello", image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=400&auto=format&fit=crop" },
+                ].map((rec, i) => (
+                  <div key={i} className="group p-5 bg-muted/30 rounded-3xl border border-border hover:border-primary/30 hover:shadow-lg transition-all cursor-pointer" onClick={() => router.push("/courses")}>
+                     <div className="aspect-video rounded-2xl overflow-hidden mb-4 bg-muted">
+                        <img src={rec.image} alt={rec.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                     </div>
+                     <div className="text-[10px] font-black uppercase tracking-widest text-primary mb-1">{rec.category}</div>
+                     <h4 className="text-sm font-black text-foreground group-hover:text-primary transition-colors mb-2">{rec.title}</h4>
+                     <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-medium text-muted-foreground">{rec.instructor}</span>
+                        <span className="text-sm font-black text-secondary">{rec.price}</span>
+                     </div>
+                  </div>
+                ))}
              </div>
           </div>
        </div>
+
        <div className="space-y-12">
           <div className="bg-card rounded-[3.5rem] p-10 border border-border shadow-xl shadow-primary/5 transition-colors">
              <h3 className="text-xl font-black text-foreground font-heading mb-10">Accomplishments</h3>
              <div className="space-y-6">
-                <div className="flex items-center gap-5 p-6 bg-muted/50 rounded-3xl border border-border transition-colors">
-                   <div className="p-4 bg-card rounded-2xl shadow-sm text-muted-foreground transition-colors"><CheckCircle2 className="w-6 h-6" /></div>
+                <div className="flex items-center gap-5 p-6 bg-primary/5 rounded-3xl border border-primary/20 transition-colors">
+                   <div className="p-4 bg-primary/10 rounded-2xl shadow-sm text-primary transition-colors"><CheckCircle2 className="w-6 h-6" /></div>
                    <div>
                       <div className="text-xs font-black text-foreground uppercase tracking-widest">Novice Scholar</div>
-                      <div className="text-[10px] font-medium text-muted-foreground transition-colors">Complete your first lecture</div>
+                      <div className="text-[10px] font-medium text-primary transition-colors">First lecture completed ✓</div>
                    </div>
                 </div>
+                <div className="flex items-center gap-5 p-6 bg-secondary/5 rounded-3xl border border-secondary/20 transition-colors">
+                   <div className="p-4 bg-secondary/10 rounded-2xl shadow-sm text-secondary transition-colors"><BookOpen className="w-6 h-6" /></div>
+                   <div>
+                      <div className="text-xs font-black text-foreground uppercase tracking-widest">Curious Mind</div>
+                      <div className="text-[10px] font-medium text-secondary transition-colors">Enrolled in 3 courses ✓</div>
+                   </div>
+                </div>
+                <div className="flex items-center gap-5 p-6 bg-muted/50 rounded-3xl border border-border transition-colors">
+                   <div className="p-4 bg-card rounded-2xl shadow-sm text-muted-foreground transition-colors"><TrendingUp className="w-6 h-6" /></div>
+                   <div>
+                      <div className="text-xs font-black text-foreground uppercase tracking-widest">Dedicated Learner</div>
+                      <div className="text-[10px] font-medium text-muted-foreground transition-colors">10+ hours of study</div>
+                   </div>
+                </div>
+                <div className="flex items-center gap-5 p-6 bg-muted/50 rounded-3xl border border-border transition-colors opacity-50">
+                   <div className="p-4 bg-card rounded-2xl shadow-sm text-muted-foreground transition-colors"><GraduationCap className="w-6 h-6" /></div>
+                   <div>
+                      <div className="text-xs font-black text-foreground uppercase tracking-widest">Academic Champion</div>
+                      <div className="text-[10px] font-medium text-muted-foreground transition-colors">Complete 5 courses — 2/5</div>
+                   </div>
+                </div>
+             </div>
+          </div>
+
+          {/* Study Streak */}
+          <div className="bg-gradient-to-br from-primary/10 to-secondary/10 rounded-[3.5rem] p-10 border border-primary/10 transition-colors">
+             <h3 className="text-xl font-black text-foreground font-heading mb-6">Study Streak 🔥</h3>
+             <div className="text-5xl font-black text-primary font-heading mb-2">7 Days</div>
+             <p className="text-xs font-medium text-muted-foreground mb-6">Keep learning daily to maintain your streak!</p>
+             <div className="flex gap-2">
+                {["M","T","W","T","F","S","S"].map((day, i) => (
+                  <div key={i} className={`flex-1 h-10 rounded-xl flex items-center justify-center text-[10px] font-black ${i < 5 ? "bg-primary text-white" : i < 7 ? "bg-primary/20 text-primary" : "bg-muted text-muted-foreground"}`}>
+                     {day}
+                  </div>
+                ))}
              </div>
           </div>
        </div>
