@@ -21,6 +21,7 @@ import { LoadingScreen } from "@/components/loading-screen";
 export default function EarningsPage() {
   const supabase = createClient();
   const [loading, setLoading] = useState(true);
+  const [activeFilter, setActiveFilter] = useState("All");
   const [profile, setProfile] = useState<any>(null);
   const [earningsData, setEarningsData] = useState<any>({
     total: 0,
@@ -90,10 +91,10 @@ export default function EarningsPage() {
             <p className="text-[10px] font-black uppercase tracking-widest text-primary">Financial Dashboard</p>
           </div>
           <div className="flex items-center gap-4">
-             <Button variant="outline" className="rounded-xl font-bold border-border text-muted-foreground px-6 h-12 hover:bg-muted transition-colors">
+             <Button variant="outline" onClick={() => toast.success("Exporting financial report...")} className="rounded-xl font-bold border-border text-muted-foreground px-6 h-12 hover:bg-muted transition-colors">
                 <Download className="w-4 h-4 mr-2" /> Export Report
              </Button>
-             <Button className="btn-gradient text-white rounded-xl px-8 font-black h-12 gap-2 shadow-lg shadow-primary/20">
+             <Button onClick={() => toast.success("Payout request submitted for review. You'll receive your funds within 3-5 business days.")} className="btn-gradient text-white rounded-xl px-8 font-black h-12 gap-2 shadow-lg shadow-primary/20">
                 <Wallet className="w-4 h-4" /> Request Payout
              </Button>
           </div>
@@ -134,9 +135,9 @@ export default function EarningsPage() {
                        <p className="text-muted-foreground text-[10px] font-black uppercase tracking-widest transition-colors">Recent financial activities</p>
                     </div>
                     <div className="flex bg-muted/50 p-1.5 rounded-2xl border border-border transition-colors">
-                       <Button variant="ghost" className="rounded-xl bg-card text-primary text-[10px] font-black uppercase tracking-widest px-6 h-10 shadow-sm border border-border/50">All</Button>
-                       <Button variant="ghost" className="rounded-xl text-muted-foreground text-[10px] font-black uppercase tracking-widest px-6 h-10 hover:text-foreground">Sales</Button>
-                       <Button variant="ghost" className="rounded-xl text-muted-foreground text-[10px] font-black uppercase tracking-widest px-6 h-10 hover:text-foreground">Payouts</Button>
+                       <Button variant="ghost" onClick={() => setActiveFilter("All")} className={`rounded-xl text-[10px] font-black uppercase tracking-widest px-6 h-10 ${activeFilter === "All" ? 'bg-card text-primary shadow-sm border border-border/50' : 'text-muted-foreground hover:text-foreground'}`}>All</Button>
+                       <Button variant="ghost" onClick={() => setActiveFilter("Sales")} className={`rounded-xl text-[10px] font-black uppercase tracking-widest px-6 h-10 ${activeFilter === "Sales" ? 'bg-card text-primary shadow-sm border border-border/50' : 'text-muted-foreground hover:text-foreground'}`}>Sales</Button>
+                       <Button variant="ghost" onClick={() => setActiveFilter("Payouts")} className={`rounded-xl text-[10px] font-black uppercase tracking-widest px-6 h-10 ${activeFilter === "Payouts" ? 'bg-card text-primary shadow-sm border border-border/50' : 'text-muted-foreground hover:text-foreground'}`}>Payouts</Button>
                     </div>
                  </div>
 

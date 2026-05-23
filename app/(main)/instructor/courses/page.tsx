@@ -55,6 +55,7 @@ export default function InstructorCoursesPage() {
   const supabase = createClient();
   const [courses, setCourses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const [profile, setProfile] = useState<any>(null);
 
@@ -88,6 +89,11 @@ export default function InstructorCoursesPage() {
     loadData();
   }, [supabase]);
 
+  const filteredCourses = courses.filter(course =>
+    course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    course.category.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   if (loading) return <LoadingScreen />;
 
   return (
@@ -108,23 +114,25 @@ export default function InstructorCoursesPage() {
            <div className="flex flex-col md:flex-row gap-4 justify-between items-center bg-card p-6 rounded-3xl border border-border shadow-xl shadow-primary/5 transition-colors duration-500">
               <div className="relative w-full md:w-96">
                  <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/40" />
-                 <input 
-                   type="text" 
-                   placeholder="Search your courses..." 
-                   className="w-full h-12 pl-14 pr-6 bg-muted/30 border-0 rounded-2xl text-sm font-bold text-foreground focus:ring-2 focus:ring-primary/10 transition-all outline-none"
-                 />
+                  <input 
+                    type="text" 
+                    placeholder="Search your courses..." 
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full h-12 pl-14 pr-6 bg-muted/30 border-0 rounded-2xl text-sm font-bold text-foreground focus:ring-2 focus:ring-primary/10 transition-all outline-none"
+                  />
               </div>
               <div className="flex items-center gap-4 w-full md:w-auto">
-                 <Button variant="ghost" className="h-12 px-6 rounded-xl border border-border text-muted-foreground font-bold text-xs uppercase tracking-widest gap-2">
-                    <Filter className="w-4 h-4" /> Filter
-                 </Button>
+                  <Button variant="ghost" onClick={() => toast.info("Course filtering coming soon. Use the search bar to find specific courses.")} className="h-12 px-6 rounded-xl border border-border text-muted-foreground font-bold text-xs uppercase tracking-widest gap-2">
+                     <Filter className="w-4 h-4" /> Filter
+                  </Button>
               </div>
            </div>
         </div>
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-10 custom-scrollbar">
-           {courses.length === 0 ? (
+           {filteredCourses.length === 0 ? (
              <div className="flex flex-col items-center justify-center py-40 bg-card rounded-[4rem] border border-border shadow-xl shadow-primary/5 transition-colors duration-500">
                 <div className="bg-muted p-10 rounded-[3rem] mb-10 transition-colors">
                    <BookOpen className="w-20 h-20 text-muted-foreground/20" />
@@ -139,7 +147,7 @@ export default function InstructorCoursesPage() {
              </div>
            ) : (
              <div className="grid grid-cols-1 gap-6">
-                {courses.map((course) => (
+                 {filteredCourses.map((course) => (
                   <CourseListItem key={course.id} course={course} />
                 ))}
              </div>

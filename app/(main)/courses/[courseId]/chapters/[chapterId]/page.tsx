@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
@@ -14,22 +14,24 @@ import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 
-export default function ChapterPlayerPage({ params }: { params: { courseId: string, chapterId: string } }) {
+export default function ChapterPlayerPage({ params }: { params: Promise<{ courseId: string, chapterId: string }> }) {
+  const { courseId, chapterId } = use(params);
   const router = useRouter();
   const [course, setCourse] = useState<any>(null);
   const [chapter, setChapter] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [isPlaying, setIsPlaying] = useState(false);
 
   useEffect(() => {
     async function fetchData() {
       try {
-        const res = await fetch(`/api/courses/${params.courseId}`);
+        const res = await fetch(`/api/courses/${courseId}`);
         if (!res.ok) throw new Error("Failed to fetch");
         const data = await res.json();
         setCourse(data);
         
-        const currentChapter = data.chapters?.find((c: any) => c.id === params.chapterId);
+        const currentChapter = data.chapters?.find((c: any) => c.id === chapterId);
         setChapter(currentChapter);
       } catch (error) {
         toast.error("Error loading chapter");
@@ -38,19 +40,19 @@ export default function ChapterPlayerPage({ params }: { params: { courseId: stri
       }
     }
     fetchData();
-  }, [params.courseId, params.chapterId]);
+  }, [courseId, chapterId]);
 
   if (isLoading) return <div className="flex h-screen items-center justify-center">Loading player...</div>;
   if (!course || !chapter) return <div className="flex h-screen items-center justify-center">Content not found.</div>;
 
-  const currentIdx = course.chapters.findIndex((c: any) => c.id === params.chapterId);
+  const currentIdx = course.chapters.findIndex((c: any) => c.id === chapterId);
   const nextChapter = course.chapters[currentIdx + 1];
   const prevChapter = course.chapters[currentIdx - 1];
 
   const onComplete = () => {
     toast.success("Chapter marked as complete!");
     if (nextChapter) {
-      router.push(`/courses/${params.courseId}/chapters/${nextChapter.id}`);
+      router.push(`/courses/${courseId}/chapters/${nextChapter.id}`);
     }
   };
 
@@ -79,14 +81,14 @@ export default function ChapterPlayerPage({ params }: { params: { courseId: stri
 
             <div className="flex-1 overflow-y-auto p-4 space-y-2">
               {course.chapters.map((c: any, idx: number) => {
-                const isActive = c.id === params.chapterId;
+                const isActive = c.id === chapterId;
                 const isLocked = false; // Mock enrollment logic
                 
                 return (
                   <button
                     key={c.id}
                     disabled={isLocked}
-                    onClick={() => router.push(`/courses/${params.courseId}/chapters/${c.id}`)}
+                    onClick={() => router.push(`/courses/${courseId}/chapters/${c.id}`)}
                     className={`w-full text-left p-4 rounded-2xl flex items-center gap-4 transition-all ${
                       isActive 
                         ? "bg-indigo-50 border border-indigo-100 shadow-sm" 
@@ -135,7 +137,7 @@ export default function ChapterPlayerPage({ params }: { params: { courseId: stri
             </div>
           </div>
           <div className="flex items-center gap-4">
-            <Button variant="ghost" onClick={() => router.push(`/courses/${params.courseId}`)} className="text-slate-500 font-bold text-xs uppercase tracking-widest">
+            <Button variant="ghost" onClick={() => router.push(`/courses/${courseId}`)} className="text-slate-500 font-bold text-xs uppercase tracking-widest">
               Exit Player
             </Button>
             <Button 
@@ -164,7 +166,7 @@ export default function ChapterPlayerPage({ params }: { params: { courseId: stri
                     </p>
                     {/* Placeholder for PDF Viewer */}
                     <div className="w-full aspect-[4/5] bg-white border border-slate-200 rounded-2xl flex items-center justify-center">
-                       <Button size="lg" className="bg-indigo-600 text-white rounded-xl">View PDF Resource</Button>
+                        <Button size="lg" onClick={() => toast.info("PDF viewer is being initialized. You'll be able to view the document shortly.")} className="bg-indigo-600 text-white rounded-xl">View PDF Resource</Button>
                     </div>
                  </div>
                ) : (
@@ -184,9 +186,9 @@ export default function ChapterPlayerPage({ params }: { params: { courseId: stri
                     <div className="w-full max-w-md bg-white p-8 rounded-3xl border border-slate-100 shadow-xl">
                        <Progress value={30} className="h-2 bg-indigo-50 mb-6" />
                        <div className="flex items-center justify-center gap-8">
-                          <button className="text-slate-400 hover:text-indigo-600 transition-colors"><ChevronLeft className="w-8 h-8" /></button>
-                          <button className="w-16 h-16 bg-indigo-600 rounded-full flex items-center justify-center text-white shadow-xl shadow-indigo-500/40"><PlayCircle className="w-8 h-8" /></button>
-                          <button className="text-slate-400 hover:text-indigo-600 transition-colors"><ChevronRight className="w-8 h-8" /></button>
+                           <button onClick={() => toast.info("Rewind feature coming soon.")} className="text-slate-400 hover:text-indigo-600 transition-colors"><ChevronLeft className="w-8 h-8" /></button>
+                           <button onClick={() => { setIsPlaying(!isPlaying); toast.info(isPlaying ? "Audio paused." : "Playing audio lecture..."); }} className="w-16 h-16 bg-indigo-600 rounded-full flex items-center justify-center text-white shadow-xl shadow-indigo-500/40">{isPlaying ? <ChevronRight className="w-8 h-8" /> : <PlayCircle className="w-8 h-8" />}</button>
+                           <button onClick={() => toast.info("Forward feature coming soon.")} className="text-slate-400 hover:text-indigo-600 transition-colors"><ChevronRight className="w-8 h-8" /></button>
                        </div>
                     </div>
                  </div>
@@ -198,7 +200,7 @@ export default function ChapterPlayerPage({ params }: { params: { courseId: stri
                <Button 
                 variant="outline" 
                 disabled={!prevChapter}
-                onClick={() => router.push(`/courses/${params.courseId}/chapters/${prevChapter.id}`)}
+                onClick={() => router.push(`/courses/${courseId}/chapters/${prevChapter.id}`)}
                 className="rounded-xl px-6 h-12 font-bold border-slate-200 text-slate-600"
                >
                  <ChevronLeft className="w-4 h-4 mr-2" /> Previous Chapter
@@ -206,7 +208,7 @@ export default function ChapterPlayerPage({ params }: { params: { courseId: stri
                <Button 
                 variant="outline" 
                 disabled={!nextChapter}
-                onClick={() => router.push(`/courses/${params.courseId}/chapters/${nextChapter.id}`)}
+                onClick={() => router.push(`/courses/${courseId}/chapters/${nextChapter.id}`)}
                 className="rounded-xl px-6 h-12 font-bold border-slate-200 text-slate-600"
                >
                  Next Chapter <ChevronRight className="w-4 h-4 ml-2" />

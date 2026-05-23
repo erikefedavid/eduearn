@@ -84,7 +84,7 @@ export default function CourseDetailsPage({ params }: { params: Promise<{ course
              <ChevronLeft className="w-6 h-6 text-muted-foreground" />
           </Button>
           <div className="flex items-center gap-4">
-             <Button variant="ghost" className="font-bold text-muted-foreground hover:text-foreground transition-colors hidden sm:inline-flex">Share Course</Button>
+             <Button variant="ghost" onClick={() => { navigator.clipboard.writeText(window.location.href); toast.success("Course link copied to clipboard!"); }} className="font-bold text-muted-foreground hover:text-foreground transition-colors hidden sm:inline-flex">Share Course</Button>
              <Badge className="bg-primary/10 text-primary border-0 font-bold px-4 py-1 text-[8px] sm:text-[10px]">Academic Verification Active</Badge>
           </div>
         </header>

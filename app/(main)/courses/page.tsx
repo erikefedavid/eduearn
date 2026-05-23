@@ -131,10 +131,10 @@ export default function CourseCataloguePage() {
                    onChange={(e) => setSearchQuery(e.target.value)}
                  />
               </div>
-              <button className="w-full md:w-auto h-14 md:h-16 px-8 rounded-2xl md:rounded-[2rem] bg-muted/40 border border-border flex items-center justify-center gap-3 hover:bg-muted/60 transition-colors">
-                 <Filter className="w-4 h-4 text-muted-foreground" />
-                 <span className="text-[10px] font-black uppercase tracking-widest text-foreground">Filter</span>
-              </button>
+               <button onClick={() => { const el = document.getElementById('category-pills'); if (el) el.scrollIntoView({ behavior: 'smooth' }); }} className="w-full md:w-auto h-14 md:h-16 px-8 rounded-2xl md:rounded-[2rem] bg-muted/40 border border-border flex items-center justify-center gap-3 hover:bg-muted/60 transition-colors">
+                  <Filter className="w-4 h-4 text-muted-foreground" />
+                  <span className="text-[10px] font-black uppercase tracking-widest text-foreground">Filter</span>
+               </button>
            </div>
         </header>
 
@@ -143,7 +143,7 @@ export default function CourseCataloguePage() {
            <div className="max-w-7xl mx-auto p-6 md:p-12 pb-40 lg:pb-32">
               
               {/* Category Pills - Scrollable on mobile */}
-              <div className="flex items-center gap-3 mb-10 md:mb-16 overflow-x-auto pb-4 no-scrollbar">
+               <div id="category-pills" className="flex items-center gap-3 mb-10 md:mb-16 overflow-x-auto pb-4 no-scrollbar">
                  {categories.map(cat => (
                     <button
                       key={cat}

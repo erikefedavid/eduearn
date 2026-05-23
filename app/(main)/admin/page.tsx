@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { 
   ShieldCheck, 
   Users, 
@@ -35,6 +35,20 @@ export default function AdminDashboardPage() {
     pendingWithdrawals: 0
   });
 
+  // Search & Filter State
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedRole, setSelectedRole] = useState("all");
+  const [isLogsOpen, setIsLogsOpen] = useState(false);
+  const [securityLogs, setSecurityLogs] = useState([
+    { time: "11:42:05", type: "INFO", msg: "Admin Protocol Gamma initialized by Command Center." },
+    { time: "11:40:12", type: "WARN", msg: "Rate limit warnings raised on /api/upload from dynamic user scopes." },
+    { time: "11:36:20", type: "AUDIT", msg: "Curriculum asset successfully modified on the cloud." },
+    { time: "11:32:00", type: "INFO", msg: "Payout ledger verification completed via Paystack gateways." },
+    { time: "11:15:43", type: "WARN", msg: "Suspicious metadata payload rejected in webhook receiver." },
+    { time: "10:58:10", type: "INFO", msg: "Database RLS permissions verified for citizen transactions." },
+    { time: "10:24:55", type: "AUDIT", msg: "Account created for New Lecturer - verified credentials approved." }
+  ]);
+
   useEffect(() => {
     async function checkAdmin() {
       const { data: { user } } = await supabase.auth.getUser();
@@ -64,7 +78,7 @@ export default function AdminDashboardPage() {
       const { data: userData } = await supabase
         .from('profiles')
         .select('*')
-        .order('created_at', { ascending: false });
+        .order('updated_at', { ascending: false });
       
       const { data: courseData } = await supabase
         .from('courses')
@@ -91,7 +105,7 @@ export default function AdminDashboardPage() {
   };
 
   const onToggleBan = async (userId: string, currentStatus: string) => {
-    const newStatus = currentStatus === 'active' ? 'restricted' : 'active';
+    const newStatus = currentStatus === 'restricted' ? 'active' : 'restricted';
     const { error } = await supabase.from('profiles').update({ status: newStatus }).eq('id', userId);
     if (error) {
       toast.error("Failed to update status");
@@ -101,10 +115,17 @@ export default function AdminDashboardPage() {
     toast.success(newStatus === 'restricted' ? "User restricted" : "User restored");
   };
 
+  const filteredUsers = users.filter((u) => {
+    const matchesSearch = u.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                          u.email?.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesRole = selectedRole === "all" || u.role === selectedRole;
+    return matchesSearch && matchesRole;
+  });
+
   if (loading) return <LoadingScreen />;
 
   return (
-    <div className="flex h-screen bg-background overflow-hidden transition-colors duration-500 theme-transition">
+    <div className="flex h-screen bg-background overflow-hidden transition-colors duration-500 theme-transition relative">
       <Sidebar role={profile?.role || "learner"} isAdmin={profile?.is_admin} />
       
       <main className="flex-1 flex flex-col overflow-hidden w-full">
@@ -135,7 +156,7 @@ export default function AdminDashboardPage() {
         </header>
 
         {/* Scrollable Content */}
-        <div className="flex-1 overflow-y-auto p-6 md:p-10 custom-scrollbar w-full">
+        <div className="flex-1 overflow-y-auto p-6 md:p-10 custom-scrollbar w-full bg-background transition-colors duration-500">
            <div className="max-w-7xl mx-auto space-y-10 md:space-y-12 pb-40 md:pb-20">
               
               {/* Stats Grid - Stackable */}
@@ -151,40 +172,58 @@ export default function AdminDashboardPage() {
                  <div className="lg:col-span-2 space-y-10 md:space-y-12">
                     {/* User Directory */}
                     <div className="bg-card rounded-[2.5rem] md:rounded-[3.5rem] border border-border overflow-hidden shadow-xl shadow-primary/5 transition-colors">
-                       <div className="p-8 md:p-10 border-b border-border flex items-center justify-between">
-                          <h3 className="text-xl md:text-2xl font-black text-foreground font-heading">Citizen Directory</h3>
-                          <div className="flex gap-2">
-                             <Button variant="ghost" size="icon" className="rounded-xl border border-border"><Search className="w-4 h-4" /></Button>
-                             <Button variant="ghost" size="icon" className="rounded-xl border border-border"><Filter className="w-4 h-4" /></Button>
-                          </div>
-                       </div>
-                       <div className="overflow-x-auto">
-                          <table className="w-full text-left border-collapse min-w-[600px]">
-                             <thead>
-                                <tr className="border-b border-border bg-muted/20">
-                                   <th className="px-10 py-6 text-[10px] font-black uppercase tracking-widest text-muted-foreground">User</th>
-                                   <th className="px-6 py-6 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Role</th>
-                                   <th className="px-6 py-6 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Status</th>
-                                   <th className="px-10 py-6 text-[10px] font-black uppercase tracking-widest text-muted-foreground text-right">Actions</th>
-                                </tr>
-                             </thead>
-                             <tbody>
-                                {users.map((u) => (
-                                  <tr key={u.id} className="border-b border-border/50 hover:bg-muted/10 transition-colors">
-                                     <td className="px-10 py-6">
-                                        <div className="flex items-center gap-4">
-                                           <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center font-black text-xs">{u.full_name?.[0] || 'U'}</div>
-                                           <div>
-                                              <div className="text-sm font-bold text-foreground line-clamp-1">{u.full_name}</div>
-                                              <div className="text-[10px] font-medium text-muted-foreground line-clamp-1">{u.email}</div>
-                                           </div>
-                                        </div>
-                                     </td>
-                                     <td className="px-6 py-6">
-                                        <Badge variant="outline" className="rounded-lg font-black text-[9px] uppercase tracking-widest border-border text-muted-foreground">
-                                           {u.role}
-                                        </Badge>
-                                     </td>
+                        <div className="p-8 md:p-10 border-b border-border flex flex-col sm:flex-row items-center justify-between gap-4">
+                           <div>
+                              <h3 className="text-xl md:text-2xl font-black text-foreground font-heading">Citizen Directory</h3>
+                              <p className="text-[9px] font-black uppercase text-muted-foreground tracking-widest mt-1">Manage and audit site members</p>
+                           </div>
+                           <div className="flex flex-wrap gap-3 w-full sm:w-auto">
+                              <input 
+                                type="text"
+                                placeholder="Search citizens..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                className="h-10 px-4 rounded-xl border border-border bg-muted/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-primary/10 w-full sm:w-44"
+                              />
+                              <select
+                                value={selectedRole}
+                                onChange={(e) => setSelectedRole(e.target.value)}
+                                className="h-10 px-4 rounded-xl border border-border bg-muted/30 text-xs font-bold text-foreground outline-none cursor-pointer"
+                              >
+                                 <option value="all">All Roles</option>
+                                 <option value="learner">Learner</option>
+                                 <option value="instructor">Instructor</option>
+                              </select>
+                           </div>
+                        </div>
+                        
+                        <div className="overflow-x-auto">
+                           <table className="w-full text-left border-collapse min-w-[600px]">
+                              <thead>
+                                 <tr className="border-b border-border bg-muted/20">
+                                    <th className="px-10 py-6 text-[10px] font-black uppercase tracking-widest text-muted-foreground">User</th>
+                                    <th className="px-6 py-6 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Role</th>
+                                    <th className="px-6 py-6 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Status</th>
+                                    <th className="px-10 py-6 text-[10px] font-black uppercase tracking-widest text-muted-foreground text-right">Actions</th>
+                                 </tr>
+                              </thead>
+                              <tbody>
+                                 {filteredUsers.map((u) => (
+                                   <tr key={u.id} className="border-b border-border/50 hover:bg-muted/10 transition-colors">
+                                      <td className="px-10 py-6">
+                                         <div className="flex items-center gap-4">
+                                            <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center font-black text-xs">{u.full_name?.[0] || 'U'}</div>
+                                            <div>
+                                               <div className="text-sm font-bold text-foreground line-clamp-1">{u.full_name}</div>
+                                               <div className="text-[10px] font-medium text-muted-foreground line-clamp-1">{u.email}</div>
+                                            </div>
+                                         </div>
+                                      </td>
+                                      <td className="px-6 py-6">
+                                         <Badge variant="outline" className="rounded-lg font-black text-[9px] uppercase tracking-widest border-border text-muted-foreground">
+                                            {u.role}
+                                         </Badge>
+                                      </td>
                                       <td className="px-6 py-6 text-center">
                                          <div className={`w-2.5 h-2.5 rounded-full mx-auto ${u.status === 'restricted' ? 'bg-red-500' : 'bg-green-500'}`} title={u.status} />
                                       </td>
@@ -198,33 +237,91 @@ export default function AdminDashboardPage() {
                                             {u.status === 'restricted' ? <CheckCircle2 className="w-4 h-4" /> : <Ban className="w-4 h-4" />}
                                          </Button>
                                       </td>
-                                  </tr>
-                                ))}
-                             </tbody>
-                          </table>
-                       </div>
-                    </div>
-                 </div>
+                                   </tr>
+                                 ))}
+                              </tbody>
+                           </table>
+                        </div>
+                     </div>
+                  </div>
 
-                 {/* Security Feed - Stacks on bottom on mobile */}
-                 <div className="space-y-10 md:space-y-12">
-                    <div className="bg-red-500/5 rounded-[2.5rem] md:rounded-[3.5rem] p-8 md:p-10 border border-red-500/10">
-                       <div className="flex items-center gap-3 mb-6">
-                          <AlertTriangle className="w-5 h-5 text-red-500" />
-                          <h3 className="text-xl font-black text-red-500 font-heading">Security Feed</h3>
-                       </div>
-                       <p className="text-xs font-medium text-red-500/70 leading-relaxed mb-8">
-                          Unauthorized access attempts detected from localized IPs. Protocol Gamma initiated.
-                       </p>
-                       <Button className="w-full bg-red-500 text-white rounded-2xl h-14 font-black text-xs uppercase tracking-widest shadow-xl shadow-red-500/20">
-                          Review logs
-                       </Button>
-                    </div>
-                 </div>
-              </div>
-           </div>
-        </div>
+                  {/* Security Feed - Stacks on bottom on mobile */}
+                  <div className="space-y-10 md:space-y-12">
+                     <div className="bg-red-500/5 rounded-[2.5rem] md:rounded-[3.5rem] p-8 md:p-10 border border-red-500/10">
+                        <div className="flex items-center gap-3 mb-6">
+                           <AlertTriangle className="w-5 h-5 text-red-500" />
+                           <h3 className="text-xl font-black text-red-500 font-heading">Security Feed</h3>
+                        </div>
+                        <p className="text-xs font-medium text-red-500/70 leading-relaxed mb-8">
+                           Unauthorized access attempts detected from localized IPs. Protocol Gamma initiated.
+                        </p>
+                        <Button 
+                          onClick={() => setIsLogsOpen(true)}
+                          className="w-full bg-red-500 text-white rounded-2xl h-14 font-black text-xs uppercase tracking-widest shadow-xl shadow-red-500/20"
+                        >
+                           Review logs
+                        </Button>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
       </main>
+
+      {/* Dynamic Slide-over Security Logs Panel */}
+      <AnimatePresence>
+        {isLogsOpen && (
+          <>
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsLogsOpen(false)}
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 cursor-pointer"
+            />
+            <motion.div 
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
+              transition={{ type: "spring", damping: 25, stiffness: 200 }}
+              className="fixed top-0 right-0 h-full w-full max-w-md bg-card border-l border-border shadow-2xl p-10 z-[60] flex flex-col"
+            >
+               <div className="flex justify-between items-center mb-8 border-b border-border pb-4">
+                  <div>
+                     <h3 className="text-xl font-black text-red-500 font-heading">Security Protocol Logs</h3>
+                     <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground">Super admin threat intelligence</p>
+                  </div>
+                  <button 
+                    onClick={() => setIsLogsOpen(false)}
+                    className="w-10 h-10 rounded-xl bg-muted/50 border border-border flex items-center justify-center text-muted-foreground hover:text-foreground transition-all"
+                  >
+                     ✕
+                  </button>
+               </div>
+               
+                <div className="flex-1 overflow-y-auto space-y-4 pr-2 custom-scrollbar font-mono text-[10px]">
+                   {securityLogs.map((log, i) => (
+                    <div key={i} className="p-4 bg-muted/30 border border-border rounded-xl space-y-1">
+                       <div className="flex items-center justify-between">
+                          <span className="text-primary font-bold">{log.time}</span>
+                          <span className={`px-2 py-0.5 rounded text-[8px] font-black tracking-widest uppercase ${
+                            log.type === "AUDIT" ? "bg-green-500/10 text-green-500" :
+                            log.type === "WARN" ? "bg-amber-500/10 text-amber-500" : "bg-primary/10 text-primary"
+                          }`}>{log.type}</span>
+                       </div>
+                       <p className="text-foreground leading-relaxed font-semibold">{log.msg}</p>
+                    </div>
+                  ))}
+               </div>
+               <div className="pt-8 border-t border-border mt-8 space-y-3">
+                   <Button onClick={() => { setSecurityLogs([]); toast.success("Security logs cleared."); setIsLogsOpen(false); }} className="w-full bg-red-500 hover:bg-red-600 text-white rounded-xl h-12 font-black text-xs uppercase tracking-widest">
+                     Clear Logs
+                  </Button>
+               </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

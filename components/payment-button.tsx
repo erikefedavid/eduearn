@@ -32,6 +32,8 @@ export const PaymentButton = ({ courseId, amount, onSuccess }: PaymentButtonProp
     amount: amount * 100, // Paystack expects amount in kobo
     publicKey: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || "",
     metadata: {
+      courseId,
+      userId: user?.id,
       custom_fields: [
         {
           display_name: "Course ID",
@@ -111,8 +113,7 @@ export const PaymentButton = ({ courseId, amount, onSuccess }: PaymentButtonProp
       return;
     }
 
-    // @ts-ignore
-    initializePayment(onSuccessCallback, onCloseCallback);
+    (initializePayment as any)(onSuccessCallback, onCloseCallback);
   };
 
   return (

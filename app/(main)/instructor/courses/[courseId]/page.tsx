@@ -31,6 +31,14 @@ export default function CourseEditPage({ params }: { params: Promise<{ courseId:
   const [chapters, setChapters] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [courseForm, setCourseForm] = useState({
+    title: "",
+    description: "",
+    category: "Technology",
+    price: "",
+    thumbnail_url: ""
+  });
 
   useEffect(() => {
     async function loadData() {
@@ -53,6 +61,13 @@ export default function CourseEditPage({ params }: { params: Promise<{ courseId:
 
       setCourse(courseData);
       setChapters(chapterData || []);
+      setCourseForm({
+        title: courseData.title || "",
+        description: courseData.description || "",
+        category: courseData.category || "Technology",
+        price: courseData.price ? courseData.price.toString() : "",
+        thumbnail_url: courseData.thumbnail_url || ""
+      });
       setLoading(false);
     }
     loadData();
@@ -80,6 +95,22 @@ export default function CourseEditPage({ params }: { params: Promise<{ courseId:
     }
   };
 
+  const onDeleteChapter = async (chapterId: string) => {
+    if (!confirm("Are you sure you want to delete this chapter?")) return;
+    try {
+      const { error } = await supabase
+        .from('chapters')
+        .delete()
+        .eq('id', chapterId);
+
+      if (error) throw error;
+      setChapters(chapters.filter(c => c.id !== chapterId));
+      toast.success("Chapter deleted successfully");
+    } catch (error) {
+      toast.error("Failed to delete chapter");
+    }
+  };
+
   const onPublish = async () => {
     try {
       setIsSaving(true);
@@ -98,10 +129,38 @@ export default function CourseEditPage({ params }: { params: Promise<{ courseId:
     }
   };
 
+  const onSaveSettings = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      setIsSaving(true);
+      const res = await fetch(`/api/courses/${courseId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: courseForm.title,
+          description: courseForm.description,
+          category: courseForm.category,
+          price: parseFloat(courseForm.price) || 0,
+          thumbnail_url: courseForm.thumbnail_url
+        })
+      });
+
+      if (!res.ok) throw new Error("Failed to update settings");
+      const updatedCourse = await res.json();
+      setCourse(updatedCourse);
+      setIsSettingsOpen(false);
+      toast.success("Course settings updated!");
+    } catch (error: any) {
+      toast.error(error.message || "Failed to update settings");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   if (loading) return <LoadingScreen />;
 
   return (
-    <div className="flex h-screen bg-background overflow-hidden transition-colors duration-500 theme-transition">
+    <div className="flex h-screen bg-background overflow-hidden transition-colors duration-500 theme-transition relative">
       <Sidebar role="instructor" />
       
       <main className="flex-1 flex flex-col overflow-hidden">
@@ -113,7 +172,7 @@ export default function CourseEditPage({ params }: { params: Promise<{ courseId:
             </Button>
             <div>
                <div className="flex items-center gap-3 mb-1">
-                  <h1 className="text-2xl font-black text-foreground font-heading">{course.title}</h1>
+                  <h1 className="text-2xl font-black text-foreground font-heading truncate max-w-md">{course.title}</h1>
                   <Badge className={`border-0 font-bold ${course.is_published ? "bg-green-500/10 text-green-500" : "bg-orange-500/10 text-orange-500"}`}>
                      {course.is_published ? "Published" : "Draft"}
                   </Badge>
@@ -122,7 +181,7 @@ export default function CourseEditPage({ params }: { params: Promise<{ courseId:
             </div>
           </div>
           <div className="flex items-center gap-4">
-             <Button variant="outline" className="rounded-xl font-bold border-border text-muted-foreground px-6 h-12 hover:bg-muted transition-colors">
+             <Button onClick={() => setIsSettingsOpen(true)} variant="outline" className="rounded-xl font-bold border-border text-muted-foreground px-6 h-12 hover:bg-muted transition-colors">
                 <Settings className="w-4 h-4 mr-2" /> Settings
              </Button>
              <Button 
@@ -163,7 +222,8 @@ export default function CourseEditPage({ params }: { params: Promise<{ courseId:
                        key={chapter.id} 
                        chapter={chapter} 
                        index={index} 
-                       courseId={courseId} 
+                       courseId={courseId}
+                       onDelete={onDeleteChapter}
                      />
                    ))
                  )}
@@ -171,11 +231,114 @@ export default function CourseEditPage({ params }: { params: Promise<{ courseId:
            </div>
         </div>
       </main>
+
+      {/* Premium Course Settings Modal */}
+      {isSettingsOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md p-6">
+          <div className="bg-card border border-border w-full max-w-2xl rounded-[3rem] overflow-hidden shadow-2xl p-10 flex flex-col max-h-[90vh]">
+            <div className="flex justify-between items-center mb-8 border-b border-border pb-4">
+              <div>
+                <h3 className="text-2xl font-black text-foreground font-heading">Course settings</h3>
+                <p className="text-[10px] font-black uppercase tracking-widest text-primary">Modify academic asset metadata</p>
+              </div>
+              <button 
+                onClick={() => setIsSettingsOpen(false)}
+                className="w-10 h-10 rounded-xl bg-muted/50 border border-border flex items-center justify-center text-muted-foreground hover:text-foreground transition-all"
+              >
+                ✕
+              </button>
+            </div>
+            
+            <form onSubmit={onSaveSettings} className="flex-1 overflow-y-auto space-y-6 pr-2 custom-scrollbar">
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-4">Course Title</label>
+                <input 
+                  type="text" 
+                  value={courseForm.title}
+                  onChange={(e) => setCourseForm({ ...courseForm, title: e.target.value })}
+                  required
+                  className="w-full h-14 px-6 rounded-2xl bg-muted/30 border border-border focus:ring-2 focus:ring-primary/20 text-foreground font-bold outline-none"
+                  placeholder="e.g. Advanced Tax Compliance"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-4">Category</label>
+                  <select 
+                    value={courseForm.category}
+                    onChange={(e) => setCourseForm({ ...courseForm, category: e.target.value })}
+                    className="w-full h-14 px-6 rounded-2xl bg-muted/30 border border-border focus:ring-2 focus:ring-primary/20 text-foreground font-bold outline-none cursor-pointer"
+                  >
+                    <option>Technology</option>
+                    <option>Law</option>
+                    <option>Engineering</option>
+                    <option>Medicine</option>
+                    <option>Business</option>
+                  </select>
+                </div>
+                
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-4">Price (₦)</label>
+                  <input 
+                    type="number" 
+                    value={courseForm.price}
+                    onChange={(e) => setCourseForm({ ...courseForm, price: e.target.value })}
+                    required
+                    className="w-full h-14 px-6 rounded-2xl bg-muted/30 border border-border focus:ring-2 focus:ring-primary/20 text-foreground font-bold outline-none"
+                    placeholder="e.g. 15000"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-4">Course Thumbnail URL</label>
+                <input 
+                  type="text" 
+                  value={courseForm.thumbnail_url}
+                  onChange={(e) => setCourseForm({ ...courseForm, thumbnail_url: e.target.value })}
+                  className="w-full h-14 px-6 rounded-2xl bg-muted/30 border border-border focus:ring-2 focus:ring-primary/20 text-foreground font-bold outline-none"
+                  placeholder="Paste Unsplash image URL"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-4">Description</label>
+                <textarea 
+                  rows={4}
+                  value={courseForm.description}
+                  onChange={(e) => setCourseForm({ ...courseForm, description: e.target.value })}
+                  className="w-full p-6 rounded-[2rem] bg-muted/30 border border-border focus:ring-2 focus:ring-primary/20 text-foreground font-medium outline-none"
+                  placeholder="Provide comprehensive details about this professional course..."
+                />
+              </div>
+
+              <div className="flex justify-end gap-4 pt-6 border-t border-border mt-8">
+                <Button 
+                  type="button" 
+                  variant="ghost" 
+                  onClick={() => setIsSettingsOpen(false)}
+                  className="font-bold text-muted-foreground"
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  type="submit" 
+                  disabled={isSaving}
+                  className="bg-primary text-white rounded-xl px-8 font-black h-12 shadow-lg shadow-primary/20 hover:scale-[1.02] transition-all"
+                >
+                  {isSaving ? "Saving..." : "Save Settings"}
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
-function ChapterItem({ chapter, index, courseId }: any) {
+function ChapterItem({ chapter, index, courseId, onDelete }: any) {
   const router = useRouter();
   
   return (
@@ -193,14 +356,21 @@ function ChapterItem({ chapter, index, courseId }: any) {
           <div className="flex items-center gap-3 mb-1">
              <h4 className="text-lg font-black text-foreground font-heading truncate group-hover:text-primary transition-colors">{chapter.title}</h4>
              <Badge variant="outline" className="border-border text-[10px] font-bold text-muted-foreground uppercase tracking-widest transition-colors">
-                {chapter.content_type === "pdf" ? <FileText className="w-3 h-3 mr-1" /> : <Headphones className="text-muted-foreground/60 w-3 h-3 mr-1" />}
-                {chapter.content_type}
+                {chapter.video_url && chapter.video_url.endsWith(".pdf") ? (
+                  <>
+                    <FileText className="w-3 h-3 mr-1" /> PDF
+                  </>
+                ) : (
+                  <>
+                    <Headphones className="text-muted-foreground/60 w-3 h-3 mr-1" /> Audio
+                  </>
+                )}
              </Badge>
           </div>
           <p className="text-xs font-medium text-muted-foreground transition-colors">Section {index + 1} of the curriculum</p>
        </div>
        <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" className="rounded-xl text-muted-foreground/40 hover:text-red-500 hover:bg-red-500/5 transition-colors">
+          <Button variant="ghost" size="icon" onClick={() => onDelete(chapter.id)} className="rounded-xl text-muted-foreground/40 hover:text-red-500 hover:bg-red-500/5 transition-colors">
              <Trash2 className="w-4 h-4" />
           </Button>
           <Button onClick={() => router.push(`/instructor/courses/${courseId}/chapters/${chapter.id}`)} variant="outline" className="bg-muted/50 rounded-xl font-bold border-border text-foreground px-6 h-12 group/btn shadow-sm hover:bg-muted transition-all">

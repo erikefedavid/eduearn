@@ -236,8 +236,8 @@ function InstructorView({ profile, setProfile }: { profile: any, setProfile: any
                   toast.error("Insufficient balance to withdraw");
                   return;
                 }
-                const res = await fetch("/api/withdraw", { method: "POST" });
-                if (res.ok) {
+                const res = await fetch("/api/withdraw", { method: "POST" }).catch(() => { toast.error("Network error. Please try again."); return null; });
+                if (res?.ok) {
                   toast.success("Withdrawal request sent!");
                   setProfile({...profile, balance: 0});
                 } else {
