@@ -68,10 +68,10 @@ export default function CoursePlayerPage({ params }: { params: Promise<{ courseI
         .single();
 
       // 3. Verify Access (Enrollment OR Instructor/Admin)
-      const isInstructorForCourse = courseData?.instructor_id === user.id;
+      const isInstructor = profile?.role === 'instructor';
       const isAdmin = profile?.is_admin;
 
-      if (!isInstructorForCourse && !isAdmin) {
+      if (!isInstructor && !isAdmin) {
         const { data: enrollment } = await supabase
           .from('enrollments')
           .select('*')
