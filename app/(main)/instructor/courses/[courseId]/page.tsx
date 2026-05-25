@@ -81,7 +81,6 @@ export default function CourseEditPage({ params }: { params: Promise<{ courseId:
         .insert({
           course_id: courseId,
           title: "New Chapter",
-          content_type: "pdf",
           position
         })
         .select()
