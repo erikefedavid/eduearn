@@ -95,7 +95,7 @@ export default function LoginPage() {
             <div className="space-y-2">
               <div className="flex justify-between items-center px-4">
                 <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">Password</label>
-                <button onClick={() => toast.success("Password reset link sent to your email.")} className="text-[10px] font-black uppercase tracking-[0.2em] text-primary hover:underline cursor-pointer">Forgot?</button>
+                <button type="button" onClick={() => toast.success("Password reset link sent to your email.")} className="text-[10px] font-black uppercase tracking-[0.2em] text-primary hover:underline cursor-pointer">Forgot?</button>
               </div>
               <div className="relative">
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />

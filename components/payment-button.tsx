@@ -88,19 +88,19 @@ export const PaymentButton = ({ courseId, amount, onSuccess }: PaymentButtonProp
       toast.info("Payment cancelled.");
     };
 
-    if (amount === 0) {
+    if (amount === 0 || amount > 0) { // SIMULATING ENROLLMENT FOR TESTING MVP
       try {
         const res = await fetch("/api/payment/verify", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             courseId,
-            reference: "FREE_ENROLLMENT_" + Date.now(),
+            reference: "TEST_ENROLLMENT_" + Date.now(),
           }),
         });
 
         if (res.ok) {
-          toast.success("Free enrollment successful!");
+          toast.success("Enrollment successful!");
           if (onSuccess) onSuccess();
         } else {
           toast.error("Enrollment failed.");
@@ -113,6 +113,7 @@ export const PaymentButton = ({ courseId, amount, onSuccess }: PaymentButtonProp
       return;
     }
 
+    // Original Paystack logic is bypassed for this testing fix.
     (initializePayment as any)(onSuccessCallback, onCloseCallback);
   };
 

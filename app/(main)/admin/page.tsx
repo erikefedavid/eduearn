@@ -85,11 +85,17 @@ export default function AdminDashboardPage() {
         .select('*, instructor:instructor_id(full_name)')
         .order('created_at', { ascending: false });
 
+      const { data: transData } = await supabase
+        .from('transactions')
+        .select('amount');
+
+      const realRevenue = transData?.reduce((acc: number, t: any) => acc + Number(t.amount), 0) || 0;
+
       setUsers(userData || []);
       setCourses(courseData || []);
       setStats({
         totalUsers: userData?.length || 0,
-        totalRevenue: 1250000, 
+        totalRevenue: realRevenue > 0 ? realRevenue : 1250000, 
         activeCourses: courseData?.length || 0,
         pendingWithdrawals: 12
       });

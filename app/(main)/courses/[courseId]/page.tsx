@@ -29,6 +29,7 @@ export default function CourseDetailsPage({ params }: { params: Promise<{ course
   const supabase = createClient();
   const [course, setCourse] = useState<any>(null);
   const [profile, setProfile] = useState<any>(null);
+  const [isEnrolled, setIsEnrolled] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -42,6 +43,17 @@ export default function CourseDetailsPage({ params }: { params: Promise<{ course
           .eq('id', user.id)
           .single();
         setProfile(profile);
+
+        const { data: enrollment } = await supabase
+          .from('enrollments')
+          .select('id')
+          .eq('user_id', user.id)
+          .eq('course_id', courseId)
+          .single();
+        
+        if (enrollment) {
+          setIsEnrolled(true);
+        }
       }
 
       const { data: course } = await supabase
@@ -186,9 +198,13 @@ export default function CourseDetailsPage({ params }: { params: Promise<{ course
                                    As an {profile?.is_admin ? "Administrator" : "Instructor"}, you cannot enroll in courses. Learning is reserved for student citizens.
                                 </p>
                              </div>
+                           ) : isEnrolled ? (
+                             <Button onClick={() => router.push(`/my-learning/${courseId}`)} className="w-full h-16 rounded-2xl bg-secondary text-white text-lg font-bold shadow-xl shadow-secondary/30">
+                                Go to Course
+                             </Button>
                            ) : (
                              <>
-                               <PaymentButton courseId={course.id} amount={course.price} />
+                               <PaymentButton courseId={course.id} amount={course.price} onSuccess={() => router.push(`/my-learning/${courseId}`)} />
                                <p className="text-[10px] text-center text-muted-foreground font-medium transition-colors">Secured by Paystack. Instant access after payment.</p>
                              </>
                            )}

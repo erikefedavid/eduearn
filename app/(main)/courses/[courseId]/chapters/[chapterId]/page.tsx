@@ -187,7 +187,7 @@ export default function ChapterPlayerPage({ params }: { params: Promise<{ course
                        <Progress value={30} className="h-2 bg-indigo-50 mb-6" />
                        <div className="flex items-center justify-center gap-8">
                            <button onClick={() => toast.info("Rewind feature coming soon.")} className="text-slate-400 hover:text-indigo-600 transition-colors"><ChevronLeft className="w-8 h-8" /></button>
-                           <button onClick={() => { setIsPlaying(!isPlaying); toast.info(isPlaying ? "Audio paused." : "Playing audio lecture..."); }} className="w-16 h-16 bg-indigo-600 rounded-full flex items-center justify-center text-white shadow-xl shadow-indigo-500/40">{isPlaying ? <ChevronRight className="w-8 h-8" /> : <PlayCircle className="w-8 h-8" />}</button>
+                           <button onClick={() => { setIsPlaying(!isPlaying); toast.info(isPlaying ? "Audio paused." : "Playing audio lecture..."); }} className="w-16 h-16 bg-indigo-600 rounded-full flex items-center justify-center text-white shadow-xl shadow-indigo-500/40 disabled:opacity-50 disabled:cursor-not-allowed">{isPlaying ? <ChevronRight className="w-8 h-8" /> : <PlayCircle className="w-8 h-8" />}</button>
                            <button onClick={() => toast.info("Forward feature coming soon.")} className="text-slate-400 hover:text-indigo-600 transition-colors"><ChevronRight className="w-8 h-8" /></button>
                        </div>
                     </div>
