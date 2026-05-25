@@ -130,6 +130,20 @@ export default function CourseEditPage({ params }: { params: Promise<{ courseId:
 
   const onSaveSettings = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate Thumbnail URL
+    if (courseForm.thumbnail_url) {
+      try {
+        const parsedUrl = new URL(courseForm.thumbnail_url.trim());
+        if (parsedUrl.protocol !== "http:" && parsedUrl.protocol !== "https:") {
+          throw new Error();
+        }
+      } catch (_) {
+        toast.error("Please provide a valid image URL starting with http:// or https://");
+        return;
+      }
+    }
+
     try {
       setIsSaving(true);
       const res = await fetch(`/api/courses/${courseId}`, {
@@ -140,7 +154,7 @@ export default function CourseEditPage({ params }: { params: Promise<{ courseId:
           description: courseForm.description,
           category: courseForm.category,
           price: parseFloat(courseForm.price) || 0,
-          thumbnail_url: courseForm.thumbnail_url
+          thumbnail_url: courseForm.thumbnail_url.trim()
         })
       });
 

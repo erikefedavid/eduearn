@@ -51,10 +51,23 @@ export default function CreateCoursePage() {
       toast.error("Please enter a valid price greater than 0.");
       return false;
     }
-    if (!formData.thumbnail_url.trim()) {
+    
+    const urlStr = formData.thumbnail_url.trim();
+    if (!urlStr) {
       toast.error("Please provide a thumbnail URL.");
       return false;
     }
+    
+    try {
+      const parsedUrl = new URL(urlStr);
+      if (parsedUrl.protocol !== "http:" && parsedUrl.protocol !== "https:") {
+        throw new Error();
+      }
+    } catch (_) {
+      toast.error("Please provide a valid image URL starting with http:// or https://");
+      return false;
+    }
+
     return true;
   };
 
