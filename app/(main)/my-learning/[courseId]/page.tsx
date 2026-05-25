@@ -53,21 +53,12 @@ export default function CoursePlayerPage({ params }: { params: Promise<{ courseI
         return;
       }
 
-      // 1. Verify Enrollment
-      const { data: enrollment } = await supabase
-        .from('enrollments')
+      // 1. Fetch Profile
+      const { data: profile } = await supabase
+        .from('profiles')
         .select('*')
-        .eq('user_id', user.id)
-        .eq('course_id', courseId)
+        .eq('id', user.id)
         .single();
-
-      if (!enrollment) {
-        setIsEnrolled(false);
-        setLoading(false);
-        return;
-      }
-
-      setIsEnrolled(true);
 
       // 2. Fetch Course and Chapters
       const { data: courseData } = await supabase
@@ -75,6 +66,27 @@ export default function CoursePlayerPage({ params }: { params: Promise<{ courseI
         .select('*')
         .eq('id', courseId)
         .single();
+
+      // 3. Verify Access (Enrollment OR Instructor/Admin)
+      const isInstructorForCourse = courseData?.instructor_id === user.id;
+      const isAdmin = profile?.is_admin;
+
+      if (!isInstructorForCourse && !isAdmin) {
+        const { data: enrollment } = await supabase
+          .from('enrollments')
+          .select('*')
+          .eq('user_id', user.id)
+          .eq('course_id', courseId)
+          .single();
+
+        if (!enrollment) {
+          setIsEnrolled(false);
+          setLoading(false);
+          return;
+        }
+      }
+
+      setIsEnrolled(true);
 
       const { data: chapterData } = await supabase
         .from('chapters')
