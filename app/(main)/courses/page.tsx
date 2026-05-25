@@ -93,7 +93,7 @@ export default function CourseCataloguePage() {
         .eq('is_published', true)
         .order('created_at', { ascending: false });
       
-      setCourses(data && data.length > 0 ? data : DUMMY_COURSES);
+      setCourses(data || []);
       setLoading(false);
     }
     loadData();
