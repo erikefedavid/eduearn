@@ -57,78 +57,18 @@ export const PaymentButton = ({ courseId, amount, onSuccess }: PaymentButtonProp
       return;
     }
 
-    setIsLoading(true);
-
-    const onSuccessCallback = async (reference: any) => {
-      try {
-        const res = await fetch("/api/payment/verify", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            courseId,
-            reference: reference.reference,
-          }),
-        });
-
-        if (res.ok) {
-          toast.success("Enrollment successful!");
-          if (onSuccess) onSuccess();
-        } else {
-          toast.error("Payment verification failed.");
-        }
-      } catch (error) {
-        toast.error("Something went wrong during verification.");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    const onCloseCallback = () => {
-      setIsLoading(false);
-      toast.info("Payment cancelled.");
-    };
-
-    if (amount === 0 || amount > 0) { // SIMULATING ENROLLMENT FOR TESTING MVP
-      try {
-        const res = await fetch("/api/payment/verify", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            courseId,
-            reference: "TEST_ENROLLMENT_" + Date.now(),
-          }),
-        });
-
-        if (res.ok) {
-          toast.success("Enrollment successful!");
-          if (onSuccess) onSuccess();
-        } else {
-          toast.error("Enrollment failed.");
-        }
-      } catch (error) {
-        toast.error("Something went wrong.");
-      } finally {
-        setIsLoading(false);
-      }
-      return;
-    }
-
-    // Original Paystack logic is bypassed for this testing fix.
-    (initializePayment as any)(onSuccessCallback, onCloseCallback);
+    // Redirect to the immersive checkout simulation
+    window.location.href = `/checkout/${courseId}`;
   };
 
   return (
     <Button
       onClick={handlePayment}
       disabled={isLoading || !user}
-      className="w-full h-16 rounded-2xl btn-gradient text-white text-lg font-bold shadow-xl shadow-primary/30"
+      className="w-full h-16 rounded-2xl btn-gradient text-white text-lg font-bold shadow-xl shadow-primary/30 hover:scale-105 transition-all"
     >
-      {isLoading ? (
-        <Loader2 className="w-5 h-5 animate-spin mr-2" />
-      ) : (
-        <CreditCard className="w-5 h-5 mr-2" />
-      )}
-      {isLoading ? "Processing..." : amount === 0 ? "Enroll for Free" : `Buy Now for ₦${amount.toLocaleString()}`}
+      <CreditCard className="w-5 h-5 mr-2" />
+      {amount === 0 ? "Enroll for Free" : `Buy Now for ₦${amount.toLocaleString()}`}
     </Button>
   );
 };

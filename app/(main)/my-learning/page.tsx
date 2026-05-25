@@ -68,7 +68,7 @@ export default function MyLearningPage() {
         `)
         .eq('user_id', user.id);
 
-      setEnrollments(data && data.length > 0 ? data : DUMMY_ENROLLMENTS);
+      setEnrollments(data || []);
       setLoading(false);
     }
     loadData();

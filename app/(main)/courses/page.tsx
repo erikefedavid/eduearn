@@ -90,6 +90,7 @@ export default function CourseCataloguePage() {
       const { data } = await supabase
         .from('courses')
         .select('*, instructor:instructor_id(full_name)')
+        .eq('is_published', true)
         .order('created_at', { ascending: false });
       
       setCourses(data && data.length > 0 ? data : DUMMY_COURSES);
