@@ -69,7 +69,19 @@ export default function DashboardPage() {
         const { data: transactions } = await supabase.from('transactions').select('*, profiles:learner_id(full_name), courses:course_id(title)').eq('instructor_id', user.id).order('created_at', { ascending: false });
         setLiveData({ courses: courses || [], transactions: transactions || [] });
       } else {
-        const { data: enrollments } = await supabase.from('enrollments').select('*, courses(*, profiles:instructor_id(full_name))').eq('user_id', user.id);
+        const { data: enrollmentsData } = await supabase.from('enrollments').select('*, courses(*)').eq('user_id', user.id);
+        
+        let enrollments = enrollmentsData;
+        if (enrollments) {
+          enrollments = await Promise.all(enrollments.map(async (e: any) => {
+            if (e.courses && e.courses.instructor_id) {
+              const { data: profile } = await supabase.from('profiles').select('full_name').eq('id', e.courses.instructor_id).single();
+              e.courses.profiles = profile;
+            }
+            return e;
+          }));
+        }
+        
         setLiveData({ enrollments: enrollments || [] });
       }
 

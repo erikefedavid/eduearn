@@ -50,10 +50,9 @@ export default function CheckoutPage({ params }: { params: Promise<{ courseId: s
         return;
       }
 
-      // Fetch course details
       const { data: courseData } = await supabase
         .from('courses')
-        .select('*, instructor:instructor_id(full_name)')
+        .select('*')
         .eq('id', courseId)
         .single();
 
@@ -62,8 +61,14 @@ export default function CheckoutPage({ params }: { params: Promise<{ courseId: s
         router.push("/courses");
         return;
       }
+      
+      let course = courseData;
+      if (course && course.instructor_id) {
+        const { data: profile } = await supabase.from('profiles').select('full_name, avatar_url').eq('id', course.instructor_id).single();
+        course.instructor = profile;
+      }
 
-      setCourse(courseData);
+      setCourse(course);
       setLoading(false);
     }
     

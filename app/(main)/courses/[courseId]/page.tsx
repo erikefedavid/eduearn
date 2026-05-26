@@ -56,15 +56,20 @@ export default function CourseDetailsPage({ params }: { params: Promise<{ course
         }
       }
 
-      const { data: course } = await supabase
+      const { data: courseData } = await supabase
         .from('courses')
         .select(`
           *,
-          profiles:instructor_id(full_name, avatar_url),
           chapters(*)
         `)
         .eq('id', courseId)
         .single();
+
+      let course = courseData;
+      if (course && course.instructor_id) {
+        const { data: profile } = await supabase.from('profiles').select('full_name, avatar_url').eq('id', course.instructor_id).single();
+        course.profiles = profile;
+      }
 
       if (!course) {
         router.push("/courses");

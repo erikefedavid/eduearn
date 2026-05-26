@@ -89,11 +89,20 @@ export default function CourseCataloguePage() {
 
       const { data } = await supabase
         .from('courses')
-        .select('*, instructor:instructor_id(full_name)')
+        .select('*')
         .eq('is_published', true)
         .order('created_at', { ascending: false });
       
-      setCourses(data || []);
+      // Fetch instructor names manually if needed, or default
+      const coursesWithInstructors = data ? await Promise.all(data.map(async (course: any) => {
+        if (course.instructor_id) {
+          const { data: profile } = await supabase.from('profiles').select('full_name, avatar_url').eq('id', course.instructor_id).single();
+          return { ...course, instructor: profile };
+        }
+        return { ...course, instructor: { full_name: "Expert" } };
+      })) : [];
+
+      setCourses(coursesWithInstructors);
       setLoading(false);
     }
     loadData();

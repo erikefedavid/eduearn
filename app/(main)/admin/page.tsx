@@ -82,7 +82,7 @@ export default function AdminDashboardPage() {
       
       const { data: courseData } = await supabase
         .from('courses')
-        .select('*, instructor:instructor_id(full_name)')
+        .select('*')
         .order('created_at', { ascending: false });
 
       const { data: transData } = await supabase
