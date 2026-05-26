@@ -199,17 +199,17 @@ export default function CheckoutPage({ params }: { params: Promise<{ courseId: s
           <Button 
             onClick={handleConfirmPayment}
             disabled={processing}
-            className="w-full h-20 rounded-[2rem] btn-gradient text-white text-xl font-black shadow-2xl shadow-primary/30 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3"
+            className="w-full h-16 md:h-20 rounded-2xl md:rounded-[2rem] btn-gradient text-white text-lg md:text-xl font-black shadow-xl shadow-primary/30 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 md:gap-3"
           >
             {processing ? (
               <>
-                <Loader2 className="w-6 h-6 animate-spin" />
+                <Loader2 className="w-5 h-5 md:w-6 md:h-6 animate-spin" />
                 Processing Payment...
               </>
             ) : (
               <>
-                <CreditCard className="w-6 h-6" />
-                Pay ₦{total.toLocaleString()} <ArrowRight className="w-6 h-6 ml-2 opacity-50" />
+                <CreditCard className="w-5 h-5 md:w-6 md:h-6" />
+                Pay ₦{total.toLocaleString()} <ArrowRight className="w-5 h-5 md:w-6 md:h-6 ml-1 md:ml-2 opacity-50" />
               </>
             )}
           </Button>

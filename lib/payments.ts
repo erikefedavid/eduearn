@@ -8,16 +8,27 @@ import { supabaseAdmin } from './supabase/server';
  */
 export async function fulfillPurchase(userId: string, courseId: string, reference: string) {
   try {
-    // 1. Get Course and Instructor Info
+    // 1. Get Course
     const { data: course, error: courseError } = await supabaseAdmin
       .from('courses')
-      .select('*, profiles:instructor_id(id, balance)')
+      .select('*')
       .eq('id', courseId)
       .single();
 
     if (courseError || !course) {
       console.error(`[FULFILL] Course not found: ${courseId}`);
       throw new Error(`Course not found: ${courseId}`);
+    }
+
+    // Fetch instructor profile to get balance
+    let instructorProfile = null;
+    if (course.instructor_id) {
+      const { data: profile } = await supabaseAdmin
+        .from('profiles')
+        .select('id, balance')
+        .eq('id', course.instructor_id)
+        .single();
+      instructorProfile = profile;
     }
 
     // 2. Create Enrollment for the Student
@@ -35,7 +46,7 @@ export async function fulfillPurchase(userId: string, courseId: string, referenc
 
     // 3. Update Instructor Balance
     if (course.instructor_id) {
-      const currentBalance = Number(course.profiles?.balance || 0);
+      const currentBalance = Number(instructorProfile?.balance || 0);
       const newBalance = currentBalance + Number(course.price);
 
       const { error: balanceError } = await supabaseAdmin
