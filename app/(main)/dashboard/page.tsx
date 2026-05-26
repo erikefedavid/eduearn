@@ -61,6 +61,11 @@ export default function DashboardPage() {
         return;
       }
 
+      if (!profile || !profile.role) {
+        router.push("/onboarding");
+        return;
+      }
+
       setProfile(profile);
 
       // Fetch dynamic live data
