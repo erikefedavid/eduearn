@@ -200,7 +200,7 @@ export default function CourseDetailsPage({ params }: { params: Promise<{ course
                                 <ShieldCheck className="w-10 h-10 text-muted-foreground mx-auto mb-4 opacity-20" />
                                 <div className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground mb-2">Restricted Access</div>
                                 <p className="text-[11px] font-medium text-muted-foreground leading-relaxed">
-                                   As an {profile?.is_admin ? "Administrator" : "Instructor"}, you cannot enroll in courses. Learning is reserved for student citizens.
+                                   As an {profile?.is_admin ? "Administrator" : "Instructor"}, you cannot enroll in courses. Learning is reserved for students.
                                 </p>
                              </div>
                            ) : isEnrolled ? (

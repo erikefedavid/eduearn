@@ -234,7 +234,7 @@ function InstructorView({ profile, setProfile, liveData }: { profile: any, setPr
               {recentTransactions.map((tx: any, i: number) => (
                 <EnrollmentRow 
                   key={i}
-                  name={tx.profiles?.full_name || "Unknown Citizen"} 
+                  name={tx.profiles?.full_name || "Unknown User"} 
                   course={tx.courses?.title || "Unknown Course"} 
                   date={typeof tx.created_at === "string" && !tx.created_at.includes("ago") 
                         ? new Date(tx.created_at).toLocaleDateString() 
