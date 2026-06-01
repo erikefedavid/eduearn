@@ -54,6 +54,23 @@ export default function LoginPage() {
     }
   };
 
+  const handleResetPassword = async () => {
+    if (!formData.email) {
+      toast.error("Please enter your email address first to reset your password");
+      return;
+    }
+    
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(formData.email, {
+        redirectTo: `${window.location.origin}/update-password`,
+      });
+      if (error) throw error;
+      toast.success("Password reset link sent to your email.");
+    } catch (error: any) {
+      toast.error(error.message || "Failed to send reset link");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-6 relative overflow-hidden transition-colors duration-500">
       {/* Background Decor */}
@@ -95,7 +112,7 @@ export default function LoginPage() {
             <div className="space-y-2">
               <div className="flex justify-between items-center px-4">
                 <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">Password</label>
-                <button type="button" onClick={() => toast.success("Password reset link sent to your email.")} className="text-[10px] font-black uppercase tracking-[0.2em] text-primary hover:underline cursor-pointer">Forgot?</button>
+                <button type="button" onClick={handleResetPassword} className="text-[10px] font-black uppercase tracking-[0.2em] text-primary hover:underline cursor-pointer">Forgot?</button>
               </div>
               <div className="relative">
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
