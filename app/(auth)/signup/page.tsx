@@ -32,14 +32,23 @@ export default function SignupPage() {
         options: {
           data: {
             full_name: formData.fullName,
+            role: "learner", // Attempt to set role in metadata in case trigger uses it
           }
         }
       });
 
       if (error) throw error;
 
-      toast.success("Account created! Please check your email or proceed to onboarding.");
-      router.push("/onboarding");
+      // 2. If session exists (email confirm is off), ensure profile role is set
+      if (data.session && data.user) {
+        await supabase
+          .from("profiles")
+          .update({ role: "learner" })
+          .eq("id", data.user.id);
+      }
+
+      toast.success("Account created! Welcome to EduEarn.");
+      router.push("/dashboard");
       router.refresh();
     } catch (error: any) {
       toast.error(error.message || "Signup failed");
