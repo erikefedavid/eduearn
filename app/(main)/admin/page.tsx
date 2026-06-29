@@ -167,7 +167,7 @@ export default function AdminDashboardPage() {
               
               {/* Stats Grid - Stackable */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
-                 <AdminStatCard title="Total Users" value={stats.totalUsers} icon={<Users />} color="primary" />
+                 <AdminStatCard title="Total Students" value={stats.totalUsers} icon={<Users />} color="primary" />
                  <AdminStatCard title="Market Revenue" value={`₦${stats.totalRevenue.toLocaleString()}`} icon={<DollarSign />} color="green" />
                  <AdminStatCard title="Library Assets" value={stats.activeCourses} icon={<BookOpen />} color="secondary" />
                  <AdminStatCard title="Payout Requests" value={stats.pendingWithdrawals} icon={<AlertTriangle />} color="red" />
@@ -176,17 +176,17 @@ export default function AdminDashboardPage() {
               {/* Management Layout - Responsive Stacking */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 md:gap-12">
                  <div className="lg:col-span-2 space-y-10 md:space-y-12">
-                    {/* User Directory */}
+                    {/* Student Directory */}
                     <div className="bg-card rounded-[2.5rem] md:rounded-[3.5rem] border border-border overflow-hidden shadow-xl shadow-primary/5 transition-colors">
                         <div className="p-8 md:p-10 border-b border-border flex flex-col sm:flex-row items-center justify-between gap-4">
                            <div>
-                              <h3 className="text-xl md:text-2xl font-black text-foreground font-heading">User Directory</h3>
+                              <h3 className="text-xl md:text-2xl font-black text-foreground font-heading">Student Directory</h3>
                               <p className="text-[9px] font-black uppercase text-muted-foreground tracking-widest mt-1">Manage and audit site members</p>
                            </div>
                            <div className="flex flex-wrap gap-3 w-full sm:w-auto">
                               <input 
                                 type="text"
-                                placeholder="Search users..."
+                                placeholder="Search students..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 className="h-10 px-4 rounded-xl border border-border bg-muted/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-primary/10 w-full sm:w-44"
