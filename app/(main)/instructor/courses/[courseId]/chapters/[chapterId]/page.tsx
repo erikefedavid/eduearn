@@ -8,6 +8,7 @@ import {
   Save, 
   FileText, 
   Headphones, 
+  Video,
   Upload,
   Globe,
   Lock,
@@ -51,6 +52,8 @@ export default function ChapterEditPage({ params }: { params: Promise<{ courseId
         const ext = data.video_url.split('.').pop()?.toLowerCase();
         if (['mp3', 'wav', 'm4a', 'ogg'].includes(ext || '')) {
           derivedType = "audio";
+        } else if (['mp4', 'webm', 'mkv', 'mov'].includes(ext || '')) {
+          derivedType = "video";
         }
       }
 
@@ -106,7 +109,9 @@ export default function ChapterEditPage({ params }: { params: Promise<{ courseId
       
       // Update local state & derive type
       const ext = url.split('.').pop()?.toLowerCase();
-      const derivedType = ['mp3', 'wav', 'm4a', 'ogg'].includes(ext || '') ? "audio" : "pdf";
+      let derivedType = "pdf";
+      if (['mp3', 'wav', 'm4a', 'ogg'].includes(ext || '')) derivedType = "audio";
+      else if (['mp4', 'webm', 'mkv', 'mov'].includes(ext || '')) derivedType = "video";
       
       setChapter((prev: any) => ({
         ...prev,
@@ -197,6 +202,14 @@ export default function ChapterEditPage({ params }: { params: Promise<{ courseId
                           </button>
                           <button 
                             type="button"
+                            onClick={() => setChapter({ ...chapter, content_type: 'video' })}
+                            className={`flex-1 flex flex-col items-center justify-center p-6 rounded-2xl border-2 transition-all ${chapter.content_type === 'video' ? 'border-blue-500 bg-blue-500/5 text-blue-500' : 'border-border bg-muted/20 text-muted-foreground'}`}
+                          >
+                             <Video className="w-8 h-8 mb-2" />
+                             <span className="text-[10px] font-black uppercase tracking-widest">Video Lecture</span>
+                          </button>
+                          <button 
+                            type="button"
                             onClick={() => setChapter({ ...chapter, content_type: 'audio' })}
                             className={`flex-1 flex flex-col items-center justify-center p-6 rounded-2xl border-2 transition-all ${chapter.content_type === 'audio' ? 'border-secondary bg-secondary/5 text-secondary' : 'border-border bg-muted/20 text-muted-foreground'}`}
                           >
@@ -237,7 +250,7 @@ export default function ChapterEditPage({ params }: { params: Promise<{ courseId
                    ref={fileInputRef} 
                    onChange={handleFileUpload} 
                    style={{ display: 'none' }} 
-                   accept={chapter.content_type === 'pdf' ? '.pdf' : '.mp3,.wav,.m4a,.ogg'}
+                   accept={chapter.content_type === 'pdf' ? '.pdf' : chapter.content_type === 'video' ? '.mp4,.webm,.mkv,.mov' : '.mp3,.wav,.m4a,.ogg'}
                  />
                  
                  <div 
