@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { 
@@ -13,7 +13,11 @@ import {
   Plus,
   Trash2,
   Menu,
-  Zap
+  Zap,
+  Video,
+  Headphones,
+  CheckCircle2,
+  Loader2
 } from "lucide-react";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
@@ -25,6 +29,12 @@ export default function CreateCoursePage() {
   const supabase = createClient();
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState(1);
+  const [courseId, setCourseId] = useState("");
+  const [chapterId, setChapterId] = useState("");
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadedUrl, setUploadedUrl] = useState("");
+  const [contentType, setContentType] = useState("video");
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [formData, setFormData] = useState({
     title: "",
@@ -83,7 +93,7 @@ export default function CreateCoursePage() {
         return;
       }
 
-      const { data, error } = await supabase
+      const { data: courseData, error: courseError } = await supabase
         .from('courses')
         .insert({
           ...formData,
@@ -94,16 +104,72 @@ export default function CreateCoursePage() {
         .select()
         .single();
 
-      if (error) throw error;
+      if (courseError) throw courseError;
 
-      toast.success("Course created! Now add some content.");
-      router.push(`/instructor/courses/${data.id}`);
+      const { data: chapterData, error: chapterError } = await supabase
+        .from('chapters')
+        .insert({
+          course_id: courseData.id,
+          title: "Introduction",
+          description: "Welcome to the course!",
+          position: 1,
+          is_free: true
+        })
+        .select()
+        .single();
+        
+      if (chapterError) throw chapterError;
+
+      setCourseId(courseData.id);
+      setChapterId(chapterData.id);
+      setStep(3);
+      toast.success("Course created! Now upload your first material.");
     } catch (error) {
       console.error(error);
       toast.error("Something went wrong.");
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setIsUploading(true);
+      const uploadData = new FormData();
+      uploadData.append("file", file);
+      uploadData.append("courseId", courseId);
+      uploadData.append("chapterId", chapterId);
+
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: uploadData,
+      });
+
+      if (!res.ok) throw new Error("Upload failed");
+
+      const { url } = await res.json();
+      setUploadedUrl(url);
+
+      const { error } = await supabase
+        .from("chapters")
+        .update({ video_url: url })
+        .eq("id", chapterId);
+
+      if (error) throw error;
+      toast.success("File uploaded successfully!");
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to upload file");
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const triggerUpload = () => {
+    fileInputRef.current?.click();
   };
 
   return (
@@ -121,18 +187,18 @@ export default function CreateCoursePage() {
           </div>
           <div className="flex items-center gap-4">
              <div className="hidden md:flex items-center gap-2 mr-4">
-                {[1, 2].map((s) => (
+                {[1, 2, 3].map((s) => (
                    <div key={s} className={`w-10 h-1.5 rounded-full transition-all duration-500 ${s <= step ? "bg-primary shadow-[0_0_10px_rgba(0,96,65,0.4)]" : "bg-muted"}`} />
                 ))}
              </div>
              <Button variant="ghost" onClick={() => router.back()} className="font-bold text-muted-foreground hover:text-foreground">Cancel</Button>
              <Button 
-               onClick={step === 1 ? () => { if (validateStep1()) setStep(2); } : onSubmit}
-               disabled={loading}
+               onClick={step === 1 ? () => { if (validateStep1()) setStep(2); } : step === 2 ? onSubmit : () => router.push(`/instructor/courses/${courseId}`)}
+               disabled={loading || isUploading}
                className="bg-primary text-white rounded-xl px-8 font-black h-12 shadow-xl shadow-primary/20 gap-2 hover:scale-[1.02] transition-all"
              >
-                {step === 1 ? "Next Step" : loading ? "Creating..." : "Finish Course"}
-                {step === 1 && <ArrowRight className="w-4 h-4" />}
+                {step === 1 ? "Next Step" : step === 2 ? (loading ? "Creating..." : "Continue") : "Finish Setup"}
+                {step !== 3 && <ArrowRight className="w-4 h-4" />}
              </Button>
           </div>
         </header>
@@ -193,7 +259,7 @@ export default function CreateCoursePage() {
                          </div>
                       </div>
                    </div>
-                 ) : (
+                 ) : step === 2 ? (
                    <div className="space-y-10">
                       <div>
                          <h2 className="text-3xl font-black text-foreground font-heading mb-2">Pricing & Media</h2>
@@ -232,6 +298,88 @@ export default function CreateCoursePage() {
                          <p className="text-foreground text-xs font-medium leading-relaxed">
                             <span className="font-black text-primary">Pro Tip:</span> Courses with professional thumbnails and detailed descriptions convert 3x better. Make sure your content reflects your expertise.
                          </p>
+                      </div>
+                   </div>
+                 ) : (
+                   <div className="space-y-10">
+                      <div>
+                         <h2 className="text-3xl font-black text-foreground font-heading mb-2">Initial Content</h2>
+                         <p className="text-muted-foreground font-medium transition-colors">Upload the first video, audio, or PDF for your students.</p>
+                      </div>
+
+                      <div className="space-y-4">
+                         <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-4">Content Type</label>
+                         <div className="flex gap-4">
+                            <button 
+                              type="button"
+                              onClick={() => setContentType('pdf')}
+                              className={`flex-1 flex flex-col items-center justify-center p-6 rounded-2xl border-2 transition-all ${contentType === 'pdf' ? 'border-primary bg-primary/5 text-primary' : 'border-border bg-muted/20 text-muted-foreground'}`}
+                            >
+                               <FileText className="w-8 h-8 mb-2" />
+                               <span className="text-[10px] font-black uppercase tracking-widest">PDF Document</span>
+                            </button>
+                            <button 
+                              type="button"
+                              onClick={() => setContentType('video')}
+                              className={`flex-1 flex flex-col items-center justify-center p-6 rounded-2xl border-2 transition-all ${contentType === 'video' ? 'border-blue-500 bg-blue-500/5 text-blue-500' : 'border-border bg-muted/20 text-muted-foreground'}`}
+                            >
+                               <Video className="w-8 h-8 mb-2" />
+                               <span className="text-[10px] font-black uppercase tracking-widest">Video Lecture</span>
+                            </button>
+                            <button 
+                              type="button"
+                              onClick={() => setContentType('audio')}
+                              className={`flex-1 flex flex-col items-center justify-center p-6 rounded-2xl border-2 transition-all ${contentType === 'audio' ? 'border-secondary bg-secondary/5 text-secondary' : 'border-border bg-muted/20 text-muted-foreground'}`}
+                            >
+                               <Headphones className="w-8 h-8 mb-2" />
+                               <span className="text-[10px] font-black uppercase tracking-widest">Audio Lecture</span>
+                            </button>
+                         </div>
+                      </div>
+
+                      <div className="pt-4">
+                         <input 
+                           type="file" 
+                           ref={fileInputRef} 
+                           onChange={handleFileUpload} 
+                           style={{ display: 'none' }} 
+                           accept={contentType === 'pdf' ? '.pdf' : contentType === 'video' ? '.mp4,.webm,.mkv,.mov' : '.mp3,.wav,.m4a,.ogg'}
+                         />
+                         
+                         <div 
+                           onClick={triggerUpload}
+                           className="border-2 border-dashed border-border rounded-[2rem] p-20 flex flex-col items-center justify-center text-center group hover:border-primary/20 transition-all cursor-pointer bg-muted/20 relative overflow-hidden"
+                         >
+                            {isUploading ? (
+                              <div className="flex flex-col items-center justify-center">
+                                 <Loader2 className="w-12 h-12 text-primary animate-spin mb-4" />
+                                 <h4 className="text-xl font-bold text-foreground mb-2">Uploading resource...</h4>
+                                 <p className="text-muted-foreground text-sm max-w-xs">Connecting to secure academic database.</p>
+                              </div>
+                            ) : uploadedUrl ? (
+                              <div className="flex flex-col items-center justify-center">
+                                 <div className="w-20 h-20 bg-green-500/10 rounded-3xl flex items-center justify-center shadow-sm mb-6 text-green-500">
+                                    <CheckCircle2 className="w-10 h-10" />
+                                 </div>
+                                 <h4 className="text-xl font-bold text-foreground mb-2">Resource Ready!</h4>
+                                 <p className="text-green-500 font-bold text-xs uppercase tracking-widest bg-green-500/10 px-4 py-1.5 rounded-full mb-4">
+                                    {contentType.toUpperCase()} LINKED
+                                 </p>
+                                  <Button variant="outline" onClick={(e) => { e.stopPropagation(); triggerUpload(); }} className="rounded-xl px-8 h-12 font-black text-[10px] uppercase tracking-widest border-border text-foreground hover:bg-muted mt-6">
+                                     Replace File
+                                  </Button>
+                              </div>
+                            ) : (
+                              <>
+                                <div className="w-20 h-20 bg-card border border-border rounded-3xl flex items-center justify-center shadow-sm mb-6 group-hover:scale-110 transition-transform">
+                                   <Upload className="w-8 h-8 text-muted-foreground group-hover:text-primary transition-colors" />
+                                </div>
+                                <h4 className="text-xl font-bold text-foreground mb-2">Upload your {contentType.toUpperCase()}</h4>
+                                <p className="text-muted-foreground text-sm max-w-xs mb-8">Drag and drop your file here, or click to browse. Max size 50MB.</p>
+                                <Button type="button" variant="outline" onClick={(e) => { e.stopPropagation(); triggerUpload(); }} className="rounded-xl px-10 h-14 font-black text-xs uppercase tracking-widest border-border">Choose File</Button>
+                              </>
+                            )}
+                         </div>
                       </div>
                    </div>
                  )}
