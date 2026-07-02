@@ -81,6 +81,9 @@
     font-weight: 700;
     letter-spacing: -0.025em;
   }
+  button {
+    cursor: pointer;
+  }
 }
 
 /* Custom Utilities for Premium Academic Look */
