@@ -122,8 +122,8 @@ export default function AdminDashboardPage() {
   };
 
   const filteredUsers = users.filter((u) => {
-    const matchesSearch = u.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          u.email?.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch = (u.full_name?.toLowerCase() || "").includes(searchQuery.toLowerCase()) || 
+                          (u.email?.toLowerCase() || "").includes(searchQuery.toLowerCase());
     const matchesRole = selectedRole === "all" || u.role === selectedRole;
     return matchesSearch && matchesRole;
   });

@@ -147,7 +147,7 @@ export default function DashboardPage() {
                  <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-primary/20 to-transparent" />
                  <div className="relative z-10 max-w-2xl">
                     <h2 className="text-4xl md:text-5xl font-black font-heading mb-4 tracking-tighter">
-                      {greeting}, {profile.full_name.split(' ')[0]}!
+                      {greeting}, {(profile.full_name || "User").split(' ')[0]}!
                     </h2>
                     <p className="text-indigo-100 dark:text-emerald-50 text-lg font-medium mb-8 leading-relaxed">
                       {profile.role === "instructor" 
@@ -214,13 +214,13 @@ function InstructorView({ profile, setProfile, liveData }: { profile: any, setPr
              title="Total Revenue" 
              value={totalRevenue} 
              icon={<DollarSign className="w-6 h-6 text-primary" />} 
-             trend={hasTransactions ? "Real-time sync" : "₦12,000 this week"}
+             trend={(liveData.transactions && liveData.transactions.length > 0) ? "Real-time sync" : "₦12,000 this week"}
            />
            <StatCard 
              title="Total Students" 
              value={totalStudents.toString()} 
              icon={<Users className="w-6 h-6 text-secondary" />} 
-             trend={hasCourses ? "Based on real enrollments" : "8 new today"}
+             trend={(liveData.courses && liveData.courses.length > 0) ? "Based on real enrollments" : "8 new today"}
            />
         </div>
 
@@ -504,7 +504,7 @@ function EnrollmentRow({ name, course, date, amount }: any) {
     <div className="flex items-center justify-between p-6 bg-muted/30 rounded-3xl border border-border hover:bg-muted transition-colors cursor-default transition-all">
        <div className="flex items-center gap-5">
           <div className="w-12 h-12 rounded-2xl bg-card border border-border flex items-center justify-center font-black text-xs text-primary transition-colors">
-             {name.split(' ').map((n: string) => n[0]).join('')}
+             {(name || "U").split(' ').map((n: string) => n[0]).join('')}
           </div>
           <div>
              <div className="text-sm font-black text-foreground">{name}</div>

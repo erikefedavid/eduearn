@@ -41,12 +41,10 @@ export default function LoginPage() {
       toast.success("Logged in successfully!");
       
       if (profile?.is_admin) {
-        router.push("/admin");
+        window.location.href = "/admin";
       } else {
-        router.push("/dashboard");
+        window.location.href = "/dashboard";
       }
-      
-      router.refresh();
     } catch (error: any) {
       toast.error(error.message || "Invalid credentials");
     } finally {
